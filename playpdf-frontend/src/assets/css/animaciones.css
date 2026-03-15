@@ -1,0 +1,75 @@
+@keyframes aparecerDesdeAbajo {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes escalarEntrada {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes girar {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animacion-aparecer-desde-abajo {
+  animation: aparecerDesdeAbajo 0.5s ease-out;
+}
+.animacion-escalar-entrada {
+  animation: escalarEntrada 0.3s ease-out;
+}
+.hijos-escalonados > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.hijos-escalonados > *:nth-child(2) {
+  animation-delay: 50ms;
+}
+.hijos-escalonados > *:nth-child(3) {
+  animation-delay: 100ms;
+}
+.hijos-escalonados > *:nth-child(4) {
+  animation-delay: 150ms;
+}
+.hijos-escalonados > *:nth-child(5) {
+  animation-delay: 200ms;
+}
+.hijos-escalonados > *:nth-child(6) {
+  animation-delay: 250ms;
+}
+.hijos-escalonados > *:nth-child(7) {
+  animation-delay: 300ms;
+}
+.hijos-escalonados > *:nth-child(8) {
+  animation-delay: 350ms;
+}
+.indicador-carga {
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid var(--color-borde-principal);
+  border-top-color: var(--color-acento);
+  border-radius: 50%;
+  animation: girar 0.7s linear infinite;
+}
+.transicion-pagina-enter-active {
+  animation: aparecerDesdeAbajo 0.35s ease-out;
+}
+.transicion-pagina-leave-active {
+  opacity: 0;
+  transition: opacity 0.15s ease-in;
+}
