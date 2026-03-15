@@ -138,17 +138,21 @@ const rutas = [
       );
       if (!datosUsuario) return "/inicio-sesion";
       switch (datosUsuario.rol) {
-        case "ADMIN": return "/administrador";
-        case "PROFESOR": return "/profesor";
-        case "ALUMNO": return "/alumno";
-        default: return "/inicio-sesion";
+        case "ADMIN":
+          return "/administrador";
+        case "PROFESOR":
+          return "/profesor";
+        case "ALUMNO":
+          return "/alumno";
+        default:
+          return "/inicio-sesion";
       }
     },
   },
 
   {
     path: "/:rutaNoEncontrada(.*)*",
-    redirect: "/",
+    redirect: "/inicio-sesion",
   },
 ];
 
@@ -164,18 +168,30 @@ enrutador.beforeEach((rutaDestino, rutaOrigen, siguiente) => {
   );
 
   if (rutaDestino.meta.requiereAutenticacion && !tokenSesion) {
-    return siguiente("/inicio-sesion");
+    if (rutaDestino.path !== "/inicio-sesion") {
+      return siguiente("/inicio-sesion");
+    }
   }
 
   if (rutaDestino.meta.soloInvitados && tokenSesion) {
-    return siguiente("/");
+    const rutaInicio = datosUsuario?.rol === "ADMIN" ? "/administrador" :
+                       datosUsuario?.rol === "PROFESOR" ? "/profesor" :
+                       datosUsuario?.rol === "ALUMNO" ? "/alumno" : "/inicio-sesion";
+    if (rutaDestino.path !== rutaInicio) {
+      return siguiente(rutaInicio);
+    }
   }
 
   if (
     rutaDestino.meta.rolRequerido &&
     datosUsuario?.rol !== rutaDestino.meta.rolRequerido
   ) {
-    return siguiente("/");
+    const rutaInicio = datosUsuario?.rol === "ADMIN" ? "/administrador" :
+                       datosUsuario?.rol === "PROFESOR" ? "/profesor" :
+                       datosUsuario?.rol === "ALUMNO" ? "/alumno" : "/inicio-sesion";
+    if (rutaDestino.path !== rutaInicio) {
+      return siguiente(rutaInicio);
+    }
   }
 
   siguiente();

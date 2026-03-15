@@ -73,9 +73,9 @@ async function eliminarAsignatura(identificador) {
         <h1 class="titulo-pagina">Gestión de asignaturas</h1>
         <p class="subtitulo-pagina">Crear, editar o eliminar cualquier asignatura</p>
       </div>
-      <div style="display:flex;gap:var(--espacio-pequeno);align-items:center;">
+      <div class="d-flex gap-2 align-items-center">
         <div class="barra-busqueda"><span class="icono-busqueda">🔍</span><input v-model="terminoBusqueda" type="text"
-            class="form-control" placeholder="Buscar..." style="width:200px;" /></div>
+            class="form-control campo-busqueda" placeholder="Buscar..." /></div>
         <button class="btn btn-primary" @click="abrirModalCreacion">+ Nueva asignatura</button>
       </div>
     </div>
@@ -87,21 +87,20 @@ async function eliminarAsignatura(identificador) {
             <th>Descripción</th>
             <th>Centro</th>
             <th>Profesor</th>
-            <th style="width:120px;text-align:center;">Acciones</th>
+            <th class="columna-acciones">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="asignatura in asignaturasFiltradas" :key="asignatura.id_asignatura">
-            <td style="font-weight:600;">{{ asignatura.nombre }}</td>
-            <td
-              style="color:var(--color-texto-secundario);font-size:0.88rem;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            <td class="fw-semibold">{{ asignatura.nombre }}</td>
+            <td class="texto-descripcion-truncada">
               {{ asignatura.descripcion }}</td>
             <td><span class="etiqueta etiqueta-acento">{{ asignatura.nombreCentro }}</span></td>
-            <td style="font-size:0.88rem;">{{ asignatura.nombreProfesor }}</td>
-            <td style="text-align:center;">
+            <td class="texto-pequeno">{{ asignatura.nombreProfesor }}</td>
+            <td class="text-center">
               <button class="boton boton-fantasma boton-pequeno" @click="abrirModalEdicion(asignatura)">✏️</button>
-              <button class="boton boton-fantasma boton-pequeno" @click="eliminarAsignatura(asignatura.id_asignatura)"
-                style="color:var(--color-error);">🗑️</button>
+              <button class="boton boton-fantasma boton-pequeno texto-error"
+                @click="eliminarAsignatura(asignatura.id_asignatura)">🗑️</button>
             </td>
           </tr>
         </tbody>
@@ -113,7 +112,7 @@ async function eliminarAsignatura(identificador) {
           <h2 class="titulo-modal">{{ identificadorEdicion ? 'Editar' : 'Nueva' }} asignatura</h2><button
             class="boton boton-fantasma boton-icono" @click="mostrarVentanaModal = false">✕</button>
         </div>
-        <form @submit.prevent="guardarAsignatura" style="display:flex;flex-direction:column;gap:var(--espacio-medio);">
+        <form @submit.prevent="guardarAsignatura" class="d-flex flex-column gap-3">
           <div class="grupo-campo"><label class="etiqueta-campo">Nombre</label><input
               v-model="datosFormularioAsignatura.nombre" required placeholder="Nombre de la asignatura" /></div>
           <div class="grupo-campo"><label class="etiqueta-campo">Descripción</label><textarea
@@ -122,7 +121,7 @@ async function eliminarAsignatura(identificador) {
           <div class="acciones-modal">
             <button type="button" class="boton boton-secundario" @click="mostrarVentanaModal = false">Cancelar</button>
             <button type="submit" class="boton boton-principal">{{ identificadorEdicion ? 'Guardar cambios' : 'Crear'
-              }}</button>
+            }}</button>
           </div>
         </form>
       </div>

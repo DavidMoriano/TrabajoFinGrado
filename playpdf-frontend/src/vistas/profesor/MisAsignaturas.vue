@@ -98,7 +98,7 @@ function cancelarEliminar() {
       <div v-for="asignatura in listaAsignaturas" :key="asignatura.idAsignatura" class="col-12 col-md-6">
         <div class="tarjeta tarjeta-interactiva animacion-aparecer-desde-abajo h-100">
           <div class="d-flex justify-content-between align-items-start">
-            <h3 class="fw-bold" style="font-size:1.05rem;">{{ asignatura.nombre }}</h3>
+            <h3 class="fw-bold texto-nombre-grande">{{ asignatura.nombre }}</h3>
             <span class="badge bg-success bg-opacity-10 text-success">
               {{ asignatura.cantidadTemas }} temas
             </span>
@@ -128,7 +128,7 @@ function cancelarEliminar() {
           <h2 class="titulo-modal">{{ identificadorEdicion ? 'Editar' : 'Nueva' }} asignatura</h2>
           <button class="boton boton-fantasma boton-icono" @click="mostrarVentanaModal = false">✕</button>
         </div>
-        <form @submit.prevent="guardarAsignatura" style="display:flex;flex-direction:column;gap:var(--espacio-medio);">
+        <form @submit.prevent="guardarAsignatura" class="d-flex flex-column gap-3">
           <div class="grupo-campo">
             <label class="etiqueta-campo">Nombre</label>
             <input v-model="datosFormularioAsignatura.nombre" required placeholder="Nombre de la asignatura" />
@@ -152,18 +152,18 @@ function cancelarEliminar() {
 
     <!-- Modal confirmación eliminar -->
     <div v-if="mostrarModalConfirmacion" class="superposicion-modal">
-      <div class="contenido-modal animacion-escalar-entrada" style="max-width:400px;">
+      <div class="contenido-modal animacion-escalar-entrada modal-eliminar">
         <div class="cabecera-modal">
           <h2 class="titulo-modal">Eliminar asignatura</h2>
         </div>
-        <p style="color:var(--color-texto-secundario);font-size:0.95rem;margin-bottom:var(--espacio-grande);">
+        <p class="texto-confirmacion-eliminar">
           ¿Estás seguro de que quieres eliminar esta asignatura? Esta acción no se puede deshacer.
         </p>
         <div class="acciones-modal">
           <button class="boton boton-secundario" @click="cancelarEliminar">
             Cancelar
           </button>
-          <button class="boton boton-principal" style="background:var(--color-error);" @click="confirmarEliminar">
+          <button class="boton boton-principal boton-eliminar-confirmar" @click="confirmarEliminar">
             Eliminar
           </button>
         </div>

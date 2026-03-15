@@ -471,3 +471,134 @@ tr:hover td {
   background: var(--color-acento-claro);
   color: var(--color-acento);
 }
+
+.texto-secundario-pequeno {
+  color: var(--color-texto-secundario);
+  font-size: 0.88rem;
+}
+
+.texto-pequeno {
+  font-size: 0.88rem;
+}
+
+.texto-terciario-pequeno {
+  font-size: 0.85rem;
+  color: var(--color-texto-terciario);
+}
+
+.texto-error {
+  color: var(--color-error);
+}
+
+.texto-descripcion-truncada {
+  color: var(--color-texto-secundario);
+  font-size: 0.88rem;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.columna-acciones-estrecha {
+  width: 100px;
+  text-align: center;
+}
+
+.columna-acciones {
+  width: 120px;
+  text-align: center;
+}
+
+.campo-busqueda {
+  width: 200px;
+}
+
+.campo-busqueda-ancho {
+  width: 260px;
+}
+
+.titulo-seccion {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.tarjeta-clicable {
+  cursor: pointer;
+}
+
+.tarjeta-con-padding {
+  padding: var(--espacio-extra-grande);
+}
+
+.icono-accion-rapida {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.icono-asignatura {
+  font-size: 1.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.icono-juego-pequeno {
+  font-size: 1.1rem;
+}
+
+.icono-estadistica {
+  font-size: 1.5rem;
+}
+
+.texto-fecha-pequeno {
+  font-size: 0.78rem;
+  color: var(--color-texto-terciario);
+}
+
+.elemento-lista-transparente {
+  background: transparent;
+  border-color: var(--color-borde-secundario);
+}
+
+.texto-ayuda {
+  color: var(--color-texto-terciario);
+  font-size: 0.78rem;
+}
+
+.texto-nombre-grande {
+  font-size: 1.05rem;
+}
+
+.icono-centro {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--redondeo-medio);
+  background: var(--color-acento-sutil);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.indicador-carga-boton {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+}
+
+.contenedor-registro {
+  max-width: 460px;
+}
+
+.modal-eliminar {
+  max-width: 400px;
+}
+
+.texto-confirmacion-eliminar {
+  color: var(--color-texto-secundario);
+  font-size: 0.95rem;
+  margin-bottom: var(--espacio-grande);
+}
+
+.boton-eliminar-confirmar {
+  background: var(--color-error);
+}

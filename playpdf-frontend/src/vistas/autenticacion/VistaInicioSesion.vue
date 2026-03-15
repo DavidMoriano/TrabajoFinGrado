@@ -56,14 +56,13 @@ async function manejarInicioSesion() {
             autocomplete="current-password" />
         </div>
 
-        <p v-if="almacenAutenticacion.mensajeError" class="mensaje-error-campo" style="text-align:center;">
+        <p v-if="almacenAutenticacion.mensajeError" class="mensaje-error-campo text-center">
           {{ almacenAutenticacion.mensajeError }}
         </p>
 
         <button type="submit" class="boton boton-principal boton-grande boton-enviar-autenticacion"
           :disabled="almacenAutenticacion.estaCargando">
-          <span v-if="almacenAutenticacion.estaCargando" class="indicador-carga"
-            style="width:18px;height:18px;border-width:2px;"></span>
+          <span v-if="almacenAutenticacion.estaCargando" class="indicador-carga indicador-carga-boton"></span>
           <span v-else>Iniciar sesión</span>
         </button>
       </form>

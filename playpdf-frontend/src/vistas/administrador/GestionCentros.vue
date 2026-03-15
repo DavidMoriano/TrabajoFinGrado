@@ -63,9 +63,9 @@ async function eliminarCentro(identificador) {
         <h1 class="titulo-pagina">Gestión de centros</h1>
         <p class="subtitulo-pagina">Agregar o eliminar centros educativos</p>
       </div>
-      <div style="display:flex;gap:var(--espacio-pequeno);align-items:center;">
+      <div class="d-flex gap-2 align-items-center">
         <div class="barra-busqueda"><span class="icono-busqueda">🔍</span><input v-model="terminoBusqueda" type="text"
-            class="form-control" placeholder="Buscar..." style="width:200px;" /></div>
+            class="form-control campo-busqueda" placeholder="Buscar..." /></div>
         <button class="btn btn-primary" @click="abrirModalCreacion">+ Nuevo centro</button>
       </div>
     </div>
@@ -77,17 +77,17 @@ async function eliminarCentro(identificador) {
             <th>Centro</th>
             <th>Ciudad</th>
             <th>Dirección</th>
-            <th style="width:100px;text-align:center;">Acciones</th>
+            <th class="columna-acciones-estrecha">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="centro in centrosFiltrados" :key="centro.id_centro">
-            <td style="font-weight:600;">{{ centro.nombre }}</td>
+            <td class="fw-semibold">{{ centro.nombre }}</td>
             <td><span class="etiqueta etiqueta-acento">{{ centro.ciudad }}</span></td>
-            <td style="color:var(--color-texto-secundario);font-size:0.88rem;">{{ centro.direccion }}</td>
-            <td style="text-align:center;">
-              <button class="boton boton-fantasma boton-pequeno" @click="eliminarCentro(centro.id_centro)"
-                style="color:var(--color-error);">🗑️</button>
+            <td class="texto-secundario-pequeno">{{ centro.direccion }}</td>
+            <td class="text-center">
+              <button class="boton boton-fantasma boton-pequeno texto-error"
+                @click="eliminarCentro(centro.id_centro)">🗑️</button>
             </td>
           </tr>
         </tbody>
@@ -100,7 +100,7 @@ async function eliminarCentro(identificador) {
           <h2 class="titulo-modal">Nuevo centro</h2>
           <button class="boton boton-fantasma boton-icono" @click="mostrarVentanaModal = false">✕</button>
         </div>
-        <form @submit.prevent="agregarCentro" style="display:flex;flex-direction:column;gap:var(--espacio-medio);">
+        <form @submit.prevent="agregarCentro" class="d-flex flex-column gap-3">
           <div class="grupo-campo"><label class="etiqueta-campo">Nombre</label><input
               v-model="datosFormularioCentro.nombre" required placeholder="Nombre del centro" /></div>
           <div class="grupo-campo"><label class="etiqueta-campo">Ciudad</label><input

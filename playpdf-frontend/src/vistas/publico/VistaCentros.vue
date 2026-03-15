@@ -35,8 +35,8 @@ const centrosFiltrados = computed(() => {
       </div>
       <div class="barra-busqueda">
         <span class="icono-busqueda">🔍</span>
-        <input v-model="terminoBusqueda" type="text" class="form-control" placeholder="Buscar centro..."
-          style="width:260px;" />
+        <input v-model="terminoBusqueda" type="text" class="form-control campo-busqueda-ancho"
+          placeholder="Buscar centro..." />
       </div>
     </div>
 
@@ -54,11 +54,10 @@ const centrosFiltrados = computed(() => {
       <div v-for="centro in centrosFiltrados" :key="centro.id_centro" class="col-12 col-md-6 col-lg-4">
         <div class="tarjeta tarjeta-interactiva animacion-aparecer-desde-abajo h-100">
           <div class="d-flex align-items-center gap-2 mb-2">
-            <div
-              style="width:42px;height:42px;border-radius:var(--redondeo-medio);background:var(--color-acento-sutil);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">
+            <div class="icono-centro">
               🏫</div>
             <div>
-              <h3 style="font-size:1rem;font-weight:700;">{{ centro.nombre }}</h3>
+              <h3 class="titulo-seccion">{{ centro.nombre }}</h3>
               <span class="badge bg-primary bg-opacity-10 text-primary">{{ centro.ciudad }}</span>
             </div>
           </div>

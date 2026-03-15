@@ -35,10 +35,10 @@ onMounted(async () => {
         </thead>
         <tbody>
           <tr v-for="profesor in listaProfesores" :key="profesor.id_usuario">
-            <td style="font-weight:600;">{{ profesor.nombre }} {{ profesor.apellidos }}</td>
-            <td style="color:var(--color-texto-secundario);font-size:0.88rem;">{{ profesor.email }}</td>
+            <td class="fw-semibold">{{ profesor.nombre }} {{ profesor.apellidos }}</td>
+            <td class="texto-secundario-pequeno">{{ profesor.email }}</td>
             <td><span class="etiqueta etiqueta-acento">{{ profesor.estudios }}</span></td>
-            <td style="font-size:0.85rem;color:var(--color-texto-terciario);">{{ profesor.fechaRegistro }}</td>
+            <td class="texto-terciario-pequeno">{{ profesor.fechaRegistro }}</td>
           </tr>
         </tbody>
       </table>

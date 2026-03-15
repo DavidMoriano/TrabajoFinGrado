@@ -22,7 +22,7 @@ const datosFormulario = ref({
 
 const necesitaCodigoAcceso = computed(() => {
   return datosFormulario.value.rol === 'profesor' ||
-         datosFormulario.value.rol === 'administrador'
+    datosFormulario.value.rol === 'administrador'
 })
 
 async function manejarRegistro() {
@@ -33,19 +33,19 @@ async function manejarRegistro() {
 
   try {
     const rolBackend = {
-      'alumno':        'ALUMNO',
-      'profesor':      'PROFESOR',
+      'alumno': 'ALUMNO',
+      'profesor': 'PROFESOR',
       'administrador': 'ADMIN'
     }
 
     const datosEnvio = {
-      nombre:        datosFormulario.value.nombre,
-      apellidos:     datosFormulario.value.apellidos,
-      email:         datosFormulario.value.email,
-      contrasena:    datosFormulario.value.contrasena,
-      edad:          parseInt(datosFormulario.value.edad),
-      estudios:      datosFormulario.value.estudios,
-      rol:           rolBackend[datosFormulario.value.rol],
+      nombre: datosFormulario.value.nombre,
+      apellidos: datosFormulario.value.apellidos,
+      email: datosFormulario.value.email,
+      contrasena: datosFormulario.value.contrasena,
+      edad: parseInt(datosFormulario.value.edad),
+      estudios: datosFormulario.value.estudios,
+      rol: rolBackend[datosFormulario.value.rol],
       codigo_acceso: datosFormulario.value.codigo_acceso
     }
 
@@ -63,7 +63,7 @@ async function manejarRegistro() {
     </div>
     <button class="boton-tema-autenticacion" @click="alternarTema">{{ esModoOscuro() ? '☀️' : '🌙' }}</button>
 
-    <div class="contenedor-autenticacion animacion-aparecer-desde-abajo" style="max-width:460px;">
+    <div class="contenedor-autenticacion animacion-aparecer-desde-abajo contenedor-registro">
       <div class="cabecera-autenticacion">
         <div class="logotipo-autenticacion">
           <div class="icono-logotipo-autenticacion">▶</div>
@@ -77,31 +77,30 @@ async function manejarRegistro() {
           <div class="col-12 col-md-6">
             <div class="grupo-campo">
               <label class="etiqueta-campo">Nombre</label>
-              <input v-model="datosFormulario.nombre" type="text" class="form-control"
-                placeholder="Pablo" required />
+              <input v-model="datosFormulario.nombre" type="text" class="form-control" placeholder="Pablo" required />
             </div>
           </div>
           <div class="col-12 col-md-6">
             <div class="grupo-campo">
               <label class="etiqueta-campo">Apellidos</label>
-              <input v-model="datosFormulario.apellidos" type="text" class="form-control"
-                placeholder="García López" required />
+              <input v-model="datosFormulario.apellidos" type="text" class="form-control" placeholder="García López"
+                required />
             </div>
           </div>
         </div>
 
         <div class="grupo-campo">
           <label class="etiqueta-campo">Email</label>
-          <input v-model="datosFormulario.email" type="email" class="form-control"
-            placeholder="tu@email.com" required />
+          <input v-model="datosFormulario.email" type="email" class="form-control" placeholder="tu@email.com"
+            required />
         </div>
 
         <div class="row g-3">
           <div class="col-12 col-md-6">
             <div class="grupo-campo">
               <label class="etiqueta-campo">Contraseña</label>
-              <input v-model="datosFormulario.contrasena" type="password" class="form-control"
-                placeholder="••••••••" required />
+              <input v-model="datosFormulario.contrasena" type="password" class="form-control" placeholder="••••••••"
+                required />
             </div>
           </div>
           <div class="col-12 col-md-6">
@@ -117,8 +116,8 @@ async function manejarRegistro() {
           <div class="col-12 col-md-6">
             <div class="grupo-campo">
               <label class="etiqueta-campo">Edad</label>
-              <input v-model="datosFormulario.edad" type="number" class="form-control"
-                min="10" max="99" placeholder="18" required />
+              <input v-model="datosFormulario.edad" type="number" class="form-control" min="10" max="99"
+                placeholder="18" required />
             </div>
           </div>
           <div class="col-12 col-md-6">
@@ -153,21 +152,20 @@ async function manejarRegistro() {
 
         <div class="grupo-campo" v-if="necesitaCodigoAcceso">
           <label class="etiqueta-campo">Código de acceso</label>
-          <input v-model="datosFormulario.codigo_acceso" type="text"
-            placeholder="Introduce el código proporcionado" required />
-          <small style="color:var(--color-texto-terciario);font-size:0.78rem;">
+          <input v-model="datosFormulario.codigo_acceso" type="text" placeholder="Introduce el código proporcionado"
+            required />
+          <small class="texto-ayuda">
             Necesitas un código especial para registrarte como {{ datosFormulario.rol }}.
           </small>
         </div>
 
-        <p v-if="almacenAutenticacion.mensajeError" class="mensaje-error-campo" style="text-align:center;">
+        <p v-if="almacenAutenticacion.mensajeError" class="mensaje-error-campo text-center">
           {{ almacenAutenticacion.mensajeError }}
         </p>
 
         <button type="submit" class="boton boton-principal boton-grande boton-enviar-autenticacion"
           :disabled="almacenAutenticacion.estaCargando">
-          <span v-if="almacenAutenticacion.estaCargando" class="indicador-carga"
-            style="width:18px;height:18px;border-width:2px;"></span>
+          <span v-if="almacenAutenticacion.estaCargando" class="indicador-carga indicador-carga-boton"></span>
           <span v-else>Crear cuenta</span>
         </button>
       </form>
