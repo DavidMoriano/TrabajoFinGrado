@@ -1,7 +1,7 @@
 # TrabajoFinGrado
 Instrucciones para correr la aplicación: 
  - BACK:
-    - Usar el script del Hito 1. 
+    - Usar el script que se en cuentra dentro de la carpeta del backend con sus datos de inicio. 
     - Cambiar la contraseña y el nombre de usuario de la base de datos por la propia.
     - Mirar los códigos de autenticación para los roles. (código de profe y admin en properties de Back).
     - Correrlo con SpringBoot.
