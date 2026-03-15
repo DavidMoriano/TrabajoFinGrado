@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Centro {
+public class Centro {	
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
