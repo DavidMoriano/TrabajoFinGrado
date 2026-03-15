@@ -47,87 +47,87 @@ const rutas = [
     path: "/administrador",
     name: "PanelAdministrador",
     component: PanelAdministrador,
-    meta: { requiereAutenticacion: true, rolRequerido: "administrador" },
+    meta: { requiereAutenticacion: true, rolRequerido: "ADMIN" },
   },
   {
     path: "/administrador/centros",
     name: "GestionCentros",
     component: GestionCentros,
-    meta: { requiereAutenticacion: true, rolRequerido: "administrador" },
+    meta: { requiereAutenticacion: true, rolRequerido: "ADMIN" },
   },
   {
     path: "/administrador/asignaturas",
     name: "GestionAsignaturas",
     component: GestionAsignaturas,
-    meta: { requiereAutenticacion: true, rolRequerido: "administrador" },
+    meta: { requiereAutenticacion: true, rolRequerido: "ADMIN" },
   },
   {
     path: "/administrador/profesores",
     name: "ListaProfesores",
     component: ListaProfesores,
-    meta: { requiereAutenticacion: true, rolRequerido: "administrador" },
+    meta: { requiereAutenticacion: true, rolRequerido: "ADMIN" },
   },
   {
     path: "/administrador/alumnos",
     name: "ListaAlumnos",
     component: ListaAlumnos,
-    meta: { requiereAutenticacion: true, rolRequerido: "administrador" },
+    meta: { requiereAutenticacion: true, rolRequerido: "ADMIN" },
   },
 
   {
     path: "/profesor",
     name: "PanelProfesor",
     component: PanelProfesor,
-    meta: { requiereAutenticacion: true, rolRequerido: "profesor" },
+    meta: { requiereAutenticacion: true, rolRequerido: "PROFESOR" },
   },
   {
     path: "/profesor/asignaturas",
     name: "MisAsignaturas",
     component: MisAsignaturas,
-    meta: { requiereAutenticacion: true, rolRequerido: "profesor" },
+    meta: { requiereAutenticacion: true, rolRequerido: "PROFESOR" },
   },
   {
     path: "/profesor/temario/:identificadorAsignatura",
     name: "SubirTemario",
     component: SubirTemario,
-    meta: { requiereAutenticacion: true, rolRequerido: "profesor" },
+    meta: { requiereAutenticacion: true, rolRequerido: "PROFESOR" },
   },
 
   {
     path: "/alumno",
     name: "PanelAlumno",
     component: PanelAlumno,
-    meta: { requiereAutenticacion: true, rolRequerido: "alumno" },
+    meta: { requiereAutenticacion: true, rolRequerido: "ALUMNO" },
   },
   {
     path: "/alumno/juegos",
     name: "SeleccionJuegos",
     component: SeleccionJuegos,
-    meta: { requiereAutenticacion: true, rolRequerido: "alumno" },
+    meta: { requiereAutenticacion: true, rolRequerido: "ALUMNO" },
   },
   {
     path: "/alumno/jugar/:identificadorTema/:tipoJuego",
     name: "InterfazJuego",
     component: InterfazJuego,
-    meta: { requiereAutenticacion: true, rolRequerido: "alumno" },
+    meta: { requiereAutenticacion: true, rolRequerido: "ALUMNO" },
   },
   {
     path: "/alumno/estadisticas",
     name: "VistaEstadisticas",
     component: VistaEstadisticas,
-    meta: { requiereAutenticacion: true, rolRequerido: "alumno" },
+    meta: { requiereAutenticacion: true, rolRequerido: "ALUMNO" },
   },
   {
     path: "/alumno/mapa-centros",
     name: "MapaCentrosEducativos",
     component: MapaCentrosEducativos,
-    meta: { requiereAutenticacion: true, rolRequerido: "alumno" },
+    meta: { requiereAutenticacion: true, rolRequerido: "ALUMNO" },
   },
   {
     path: "/alumno/accesibilidad",
     name: "ConfiguracionAccesibilidad",
     component: ConfiguracionAccesibilidad,
-    meta: { requiereAutenticacion: true, rolRequerido: "alumno" },
+    meta: { requiereAutenticacion: true, rolRequerido: "ALUMNO" },
   },
 
   {
@@ -138,14 +138,10 @@ const rutas = [
       );
       if (!datosUsuario) return "/inicio-sesion";
       switch (datosUsuario.rol) {
-        case "administrador":
-          return "/administrador";
-        case "profesor":
-          return "/profesor";
-        case "alumno":
-          return "/alumno";
-        default:
-          return "/inicio-sesion";
+        case "ADMIN": return "/administrador";
+        case "PROFESOR": return "/profesor";
+        case "ALUMNO": return "/alumno";
+        default: return "/inicio-sesion";
       }
     },
   },

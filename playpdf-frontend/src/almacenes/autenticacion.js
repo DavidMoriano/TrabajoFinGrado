@@ -11,12 +11,15 @@ export const usarAlmacenAutenticacion = defineStore("autenticacion", () => {
   const mensajeError = ref(null);
 
   const estaAutenticado = computed(() => !!tokenSesion.value);
+
   const esAdministrador = computed(
-    () => usuarioActual.value?.rol === "administrador",
+    () => usuarioActual.value?.rol === "ADMIN",
   );
-  const esProfesor = computed(() => usuarioActual.value?.rol === "profesor");
-  const esAlumno = computed(() => usuarioActual.value?.rol === "alumno");
+  const esProfesor = computed(() => usuarioActual.value?.rol === "PROFESOR");
+  const esAlumno = computed(() => usuarioActual.value?.rol === "ALUMNO");
+
   const rolUsuario = computed(() => usuarioActual.value?.rol || null);
+
   const nombreCompletoUsuario = computed(() => {
     if (!usuarioActual.value) return "";
     return `${usuarioActual.value.nombre} ${usuarioActual.value.apellidos}`;
@@ -30,10 +33,7 @@ export const usarAlmacenAutenticacion = defineStore("autenticacion", () => {
       tokenSesion.value = respuesta.data.token;
       usuarioActual.value = respuesta.data.usuario;
       localStorage.setItem("playpdf-token", tokenSesion.value);
-      localStorage.setItem(
-        "playpdf-usuario",
-        JSON.stringify(usuarioActual.value),
-      );
+      localStorage.setItem("playpdf-usuario", JSON.stringify(usuarioActual.value));
       return respuesta.data;
     } catch (error) {
       mensajeError.value =
@@ -48,15 +48,11 @@ export const usarAlmacenAutenticacion = defineStore("autenticacion", () => {
     estaCargando.value = true;
     mensajeError.value = null;
     try {
-      const respuesta =
-        await servicioAutenticacion.registrarUsuario(datosUsuario);
+      const respuesta = await servicioAutenticacion.registrarUsuario(datosUsuario);
       tokenSesion.value = respuesta.data.token;
       usuarioActual.value = respuesta.data.usuario;
       localStorage.setItem("playpdf-token", tokenSesion.value);
-      localStorage.setItem(
-        "playpdf-usuario",
-        JSON.stringify(usuarioActual.value),
-      );
+      localStorage.setItem("playpdf-usuario", JSON.stringify(usuarioActual.value));
       return respuesta.data;
     } catch (error) {
       mensajeError.value =

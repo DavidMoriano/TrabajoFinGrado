@@ -9,12 +9,20 @@ const almacenAutenticacion = usarAlmacenAutenticacion()
 const { alternarTema, esModoOscuro } = usarTema()
 
 const datosFormulario = ref({
-  nombre: '', apellidos: '', email: '', contrasena: '', confirmarContrasena: '',
-  edad: '', estudios: '', rol: 'alumno', codigoAcceso: ''
+  nombre: '',
+  apellidos: '',
+  email: '',
+  contrasena: '',
+  confirmarContrasena: '',
+  edad: '',
+  estudios: '',
+  rol: 'alumno',
+  codigo_acceso: ''
 })
 
 const necesitaCodigoAcceso = computed(() => {
-  return datosFormulario.value.rol === 'profesor' || datosFormulario.value.rol === 'administrador'
+  return datosFormulario.value.rol === 'profesor' ||
+         datosFormulario.value.rol === 'administrador'
 })
 
 async function manejarRegistro() {
@@ -22,10 +30,25 @@ async function manejarRegistro() {
     almacenAutenticacion.mensajeError = 'Las contraseñas no coinciden'
     return
   }
+
   try {
-    const { confirmarContrasena, codigoAcceso, ...datosEnvio } = datosFormulario.value
-    datosEnvio.edad = parseInt(datosEnvio.edad)
-    if (necesitaCodigoAcceso.value) datosEnvio.codigo_acceso = codigoAcceso
+    const rolBackend = {
+      'alumno':        'ALUMNO',
+      'profesor':      'PROFESOR',
+      'administrador': 'ADMIN'
+    }
+
+    const datosEnvio = {
+      nombre:        datosFormulario.value.nombre,
+      apellidos:     datosFormulario.value.apellidos,
+      email:         datosFormulario.value.email,
+      contrasena:    datosFormulario.value.contrasena,
+      edad:          parseInt(datosFormulario.value.edad),
+      estudios:      datosFormulario.value.estudios,
+      rol:           rolBackend[datosFormulario.value.rol],
+      codigo_acceso: datosFormulario.value.codigo_acceso
+    }
+
     await almacenAutenticacion.registrarUsuario(datosEnvio)
     enrutador.push('/')
   } catch (errorPeticion) { }
@@ -54,28 +77,31 @@ async function manejarRegistro() {
           <div class="col-12 col-md-6">
             <div class="grupo-campo">
               <label class="etiqueta-campo">Nombre</label>
-              <input v-model="datosFormulario.nombre" type="text" class="form-control" placeholder="Pablo" required />
+              <input v-model="datosFormulario.nombre" type="text" class="form-control"
+                placeholder="Pablo" required />
             </div>
           </div>
           <div class="col-12 col-md-6">
             <div class="grupo-campo">
               <label class="etiqueta-campo">Apellidos</label>
-              <input v-model="datosFormulario.apellidos" type="text" class="form-control" placeholder="García López"
-                required />
+              <input v-model="datosFormulario.apellidos" type="text" class="form-control"
+                placeholder="García López" required />
             </div>
           </div>
         </div>
+
         <div class="grupo-campo">
           <label class="etiqueta-campo">Email</label>
-          <input v-model="datosFormulario.email" type="email" class="form-control" placeholder="tu@email.com"
-            required />
+          <input v-model="datosFormulario.email" type="email" class="form-control"
+            placeholder="tu@email.com" required />
         </div>
+
         <div class="row g-3">
           <div class="col-12 col-md-6">
             <div class="grupo-campo">
               <label class="etiqueta-campo">Contraseña</label>
-              <input v-model="datosFormulario.contrasena" type="password" class="form-control" placeholder="••••••••"
-                required />
+              <input v-model="datosFormulario.contrasena" type="password" class="form-control"
+                placeholder="••••••••" required />
             </div>
           </div>
           <div class="col-12 col-md-6">
@@ -86,12 +112,13 @@ async function manejarRegistro() {
             </div>
           </div>
         </div>
+
         <div class="row g-3">
           <div class="col-12 col-md-6">
             <div class="grupo-campo">
               <label class="etiqueta-campo">Edad</label>
-              <input v-model="datosFormulario.edad" type="number" class="form-control" min="10" max="99"
-                placeholder="18" required />
+              <input v-model="datosFormulario.edad" type="number" class="form-control"
+                min="10" max="99" placeholder="18" required />
             </div>
           </div>
           <div class="col-12 col-md-6">
@@ -102,32 +129,41 @@ async function manejarRegistro() {
             </div>
           </div>
         </div>
+
         <div class="grupo-campo">
           <label class="etiqueta-campo">Tipo de usuario</label>
           <div class="selector-rol">
             <label class="opcion-rol" :class="{ 'opcion-seleccionada': datosFormulario.rol === 'alumno' }">
-              <input type="radio" v-model="datosFormulario.rol" value="alumno" /><span
-                class="icono-rol">🎓</span><span>Alumno</span>
+              <input type="radio" v-model="datosFormulario.rol" value="alumno" />
+              <span class="icono-rol">🎓</span>
+              <span>Alumno</span>
             </label>
             <label class="opcion-rol" :class="{ 'opcion-seleccionada': datosFormulario.rol === 'profesor' }">
-              <input type="radio" v-model="datosFormulario.rol" value="profesor" /><span
-                class="icono-rol">👨‍🏫</span><span>Profesor</span>
+              <input type="radio" v-model="datosFormulario.rol" value="profesor" />
+              <span class="icono-rol">👨‍🏫</span>
+              <span>Profesor</span>
             </label>
             <label class="opcion-rol" :class="{ 'opcion-seleccionada': datosFormulario.rol === 'administrador' }">
-              <input type="radio" v-model="datosFormulario.rol" value="administrador" /><span
-                class="icono-rol">🛡️</span><span>Admin</span>
+              <input type="radio" v-model="datosFormulario.rol" value="administrador" />
+              <span class="icono-rol">🛡️</span>
+              <span>Admin</span>
             </label>
           </div>
         </div>
+
         <div class="grupo-campo" v-if="necesitaCodigoAcceso">
           <label class="etiqueta-campo">Código de acceso</label>
-          <input v-model="datosFormulario.codigoAcceso" type="text" placeholder="Introduce el código proporcionado"
-            required />
-          <small style="color:var(--color-texto-terciario);font-size:0.78rem;">Necesitas un código especial para
-            registrarte como {{ datosFormulario.rol }}.</small>
+          <input v-model="datosFormulario.codigo_acceso" type="text"
+            placeholder="Introduce el código proporcionado" required />
+          <small style="color:var(--color-texto-terciario);font-size:0.78rem;">
+            Necesitas un código especial para registrarte como {{ datosFormulario.rol }}.
+          </small>
         </div>
-        <p v-if="almacenAutenticacion.mensajeError" class="mensaje-error-campo" style="text-align:center;">{{
-          almacenAutenticacion.mensajeError }}</p>
+
+        <p v-if="almacenAutenticacion.mensajeError" class="mensaje-error-campo" style="text-align:center;">
+          {{ almacenAutenticacion.mensajeError }}
+        </p>
+
         <button type="submit" class="boton boton-principal boton-grande boton-enviar-autenticacion"
           :disabled="almacenAutenticacion.estaCargando">
           <span v-if="almacenAutenticacion.estaCargando" class="indicador-carga"
@@ -135,8 +171,11 @@ async function manejarRegistro() {
           <span v-else>Crear cuenta</span>
         </button>
       </form>
-      <p class="texto-pie-autenticacion">¿Ya tienes cuenta? <router-link to="/inicio-sesion"
-          class="enlace-autenticacion">Inicia sesión</router-link></p>
+
+      <p class="texto-pie-autenticacion">
+        ¿Ya tienes cuenta?
+        <router-link to="/inicio-sesion" class="enlace-autenticacion">Inicia sesión</router-link>
+      </p>
     </div>
   </div>
 </template>
