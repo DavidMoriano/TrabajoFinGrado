@@ -40,21 +40,26 @@ public class EstadisticaServicio {
 		int totalPreguntas = lista.stream().mapToInt(Estadistica::getTotalPreguntas).sum();
 		int rachaActual = lista.stream().mapToInt(Estadistica::getRachaActual).max().orElse(0);
 
-		// Rendimiento por asignatura
 		List<Map<String, Object>> porAsignatura = new ArrayList<>();
 		for (Estadistica e : lista) {
 			if (e.getAsignatura() != null) {
-				porAsignatura.add(
-						Map.of("nombreAsignatura", e.getAsignatura().getNombre(), "totalPartidas", e.getTotalPartidas(),
-								"totalAciertos", e.getTotalAciertos(), "totalPreguntas", e.getTotalPreguntas()));
+				porAsignatura.add(Map.of(
+						"nombreAsignatura", e.getAsignatura().getNombre(),
+						"totalPartidas", e.getTotalPartidas(),
+						"totalAciertos", e.getTotalAciertos(),
+						"totalPreguntas", e.getTotalPreguntas()));
 			}
 		}
 
-		return Map.of("totalPartidas", totalPartidas, "totalAciertos", totalAciertos, "totalPreguntas", totalPreguntas,
-				"rachaActual", rachaActual, "porAsignatura", porAsignatura);
+		return Map.of(
+				"totalPartidas", totalPartidas,
+				"totalAciertos", totalAciertos,
+				"totalPreguntas", totalPreguntas,
+				"rachaActual", rachaActual,
+				"porAsignatura", porAsignatura);
 	}
 
-	public void registrarAcceso(Long idAsignatura) {
+	public void registrarPartida(Long idAsignatura, int aciertos, int totalPreguntas) {
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		Usuario usuario = usuarioRepositorio.findByEmail(email)
 				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -77,6 +82,16 @@ public class EstadisticaServicio {
 		});
 
 		estadistica.setTotalPartidas(estadistica.getTotalPartidas() + 1);
+		estadistica.setTotalAciertos(estadistica.getTotalAciertos() + aciertos);
+		estadistica.setTotalPreguntas(estadistica.getTotalPreguntas() + totalPreguntas);
+
+		// Racha: si acertó todo en esta partida, incrementar; si no, resetear
+		if (totalPreguntas > 0 && aciertos == totalPreguntas) {
+			estadistica.setRachaActual(estadistica.getRachaActual() + 1);
+		} else {
+			estadistica.setRachaActual(0);
+		}
+
 		estadisticaRepositorio.save(estadistica);
 	}
 
@@ -85,7 +100,9 @@ public class EstadisticaServicio {
 		Long totalAciertos = estadisticaRepositorio.contarTotalAciertosGlobal();
 		long totalUsuarios = usuarioRepositorio.count();
 
-		return Map.of("totalPartidasGlobal", totalPartidas != null ? totalPartidas : 0, "totalAciertosGlobal",
-				totalAciertos != null ? totalAciertos : 0, "totalUsuarios", totalUsuarios);
+		return Map.of(
+				"totalPartidasGlobal", totalPartidas != null ? totalPartidas : 0,
+				"totalAciertosGlobal", totalAciertos != null ? totalAciertos : 0,
+				"totalUsuarios", totalUsuarios);
 	}
 }

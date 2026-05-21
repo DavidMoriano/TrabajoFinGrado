@@ -33,13 +33,37 @@ public class JuegoControlador {
 		}
 	}
 
-	// POST /api/juegos/generar-preguntas
+	// POST /api/juegos/generar-preguntas — genera si no existen
 	@PostMapping("/generar-preguntas")
 	public ResponseEntity<?> generarPreguntas(@RequestBody Map<String, Object> datos) {
 		try {
 			Long idTema = Long.valueOf(datos.get("id_tema").toString());
 			juegoServicio.generarPreguntasConIA(idTema);
 			return ResponseEntity.ok(Map.of("message", "Preguntas generadas correctamente"));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+		}
+	}
+
+	// DELETE /api/juegos/preguntas?tema={idTema} — borrar todas las preguntas de un tema
+	@DeleteMapping("/preguntas")
+	public ResponseEntity<?> borrarPreguntas(@RequestParam("tema") Long idTema) {
+		try {
+			juegoServicio.borrarPreguntas(idTema);
+			return ResponseEntity.ok(Map.of("message", "Preguntas eliminadas"));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+		}
+	}
+
+	// POST /api/juegos/regenerar-preguntas — borrar y regenerar
+	@PostMapping("/regenerar-preguntas")
+	public ResponseEntity<?> regenerarPreguntas(@RequestBody Map<String, Object> datos) {
+		try {
+			Long idTema = Long.valueOf(datos.get("id_tema").toString());
+			juegoServicio.borrarPreguntas(idTema);
+			juegoServicio.generarPreguntasConIA(idTema);
+			return ResponseEntity.ok(Map.of("message", "Preguntas regeneradas correctamente"));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
 		}

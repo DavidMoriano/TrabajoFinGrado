@@ -26,20 +26,21 @@ public class EstadisticaControlador {
 		}
 	}
 
-	// POST /api/estadisticas
+	// POST /api/estadisticas — registrar resultado de una partida completa
 	@PostMapping
-	public ResponseEntity<?> registrarAcceso(@RequestBody Map<String, Object> datos) {
+	public ResponseEntity<?> registrarPartida(@RequestBody Map<String, Object> datos) {
 		try {
 			Long idAsignatura = Long.valueOf(datos.get("id_asignatura").toString());
-			estadisticaServicio.registrarAcceso(idAsignatura);
-			return ResponseEntity.ok(Map.of("message", "Acceso registrado"));
+			int aciertos = datos.containsKey("aciertos") ? Integer.parseInt(datos.get("aciertos").toString()) : 0;
+			int totalPreguntas = datos.containsKey("total_preguntas") ? Integer.parseInt(datos.get("total_preguntas").toString()) : 0;
+			estadisticaServicio.registrarPartida(idAsignatura, aciertos, totalPreguntas);
+			return ResponseEntity.ok(Map.of("message", "Partida registrada"));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
 		}
 	}
 
-	// GET /api/estadisticas/globales (solo administrador - controlado en
-	// SecurityConfig)
+	// GET /api/estadisticas/globales (solo admin)
 	@GetMapping("/globales")
 	public ResponseEntity<?> obtenerEstadisticasGlobales() {
 		return ResponseEntity.ok(estadisticaServicio.obtenerEstadisticasGlobales());

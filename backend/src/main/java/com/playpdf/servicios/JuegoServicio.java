@@ -20,7 +20,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class JuegoServicio {
@@ -62,13 +61,23 @@ public class JuegoServicio {
 		for (Pregunta p : preguntas) {
 			List<Map<String, Object>> respuestas = new ArrayList<>();
 			for (Respuesta r : p.getRespuestas()) {
-				respuestas.add(Map.of("id_respuesta", r.getIdRespuesta(), "texto", r.getTexto(), "esCorrecta",
-						r.getEsCorrecta()));
+				respuestas.add(Map.of(
+						"id_respuesta", r.getIdRespuesta(),
+						"texto", r.getTexto(),
+						"esCorrecta", r.getEsCorrecta()));
 			}
-			resultado.add(Map.of("id_pregunta", p.getIdPregunta(), "enunciado", p.getEnunciado(), "tipo",
-					p.getTipo().name(), "respuestas", respuestas));
+			resultado.add(Map.of(
+					"id_pregunta", p.getIdPregunta(),
+					"enunciado", p.getEnunciado(),
+					"tipo", p.getTipo().name(),
+					"respuestas", respuestas));
 		}
 		return resultado;
+	}
+
+	@Transactional
+	public void borrarPreguntas(Long idTema) {
+		preguntaRepositorio.deleteByIdTema(idTema);
 	}
 
 	@Transactional
@@ -76,93 +85,151 @@ public class JuegoServicio {
 		Tema tema = temaRepositorio.findById(idTema)
 				.orElseThrow(() -> new RuntimeException("Tema no encontrado: " + idTema));
 
-		// Si ya hay preguntas, no regenerar
-		Optional<Pregunta> existentes = preguntaRepositorio.findById(idTema);
-		if (!existentes.isEmpty())
-			return;
-
-		// Leer el texto del PDF
 		String textoPdf = leerTextoPdf(idTema);
 
-		// Llamar a la API de IA
-		String jsonPreguntas = llamarApiIA(textoPdf, tema.getTitulo());
+		// Generar preguntas de quiz si no existen
+		List<Pregunta> quizExistentes = preguntaRepositorio.findByTemaIdTemaAndTipo(idTema, Pregunta.TipoPregunta.quiz);
+		if (quizExistentes.isEmpty()) {
+			String jsonQuiz = llamarApiIA(textoPdf, tema.getTitulo(), "quiz");
+			guardarPreguntasDesdeJson(jsonQuiz, tema, Pregunta.TipoPregunta.quiz);
+		}
 
-		// Parsear y guardar las preguntas en BD
-		guardarPreguntasDesdeJson(jsonPreguntas, tema);
+		// Generar preguntas de puzzle si no existen
+		List<Pregunta> puzzleExistentes = preguntaRepositorio.findByTemaIdTemaAndTipo(idTema, Pregunta.TipoPregunta.puzzle);
+		if (puzzleExistentes.isEmpty()) {
+			String jsonPuzzle = llamarApiIA(textoPdf, tema.getTitulo(), "puzzle");
+			guardarPreguntasDesdeJson(jsonPuzzle, tema, Pregunta.TipoPregunta.puzzle);
+		}
 	}
 
 	private String leerTextoPdf(Long idTema) {
 		try {
 			Path ruta = temaServicio.obtenerRutaPdf(idTema);
-			// Lectura simple del archivo como bytes - en producción usar Apache PDFBox
-			// para extraer el texto real del PDF
-			byte[] bytes = Files.readAllBytes(ruta);
-			// Intentar extraer texto plano (funciona con PDFs no escaneados)
-			String contenido = new String(bytes, "ISO-8859-1");
-			// Limpiar caracteres no imprimibles
-			contenido = contenido.replaceAll("[^\\x20-\\x7E\\n]", " ").trim();
-			// Limitar a 3000 caracteres para no superar el límite del API
-			return contenido.length() > 3000 ? contenido.substring(0, 3000) : contenido;
+			try (org.apache.pdfbox.pdmodel.PDDocument documento =
+					org.apache.pdfbox.Loader.loadPDF(ruta.toFile())) {
+				org.apache.pdfbox.text.PDFTextStripper extractor = new org.apache.pdfbox.text.PDFTextStripper();
+				String texto = extractor.getText(documento);
+				texto = texto.replaceAll("\\s+", " ").trim();
+				return texto.length() > 4000 ? texto.substring(0, 4000) : texto;
+			}
 		} catch (Exception e) {
-			return "Contenido del tema: " + idTema;
+			try {
+				Path ruta = temaServicio.obtenerRutaPdf(idTema);
+				byte[] bytes = Files.readAllBytes(ruta);
+				String contenido = new String(bytes, java.nio.charset.StandardCharsets.ISO_8859_1);
+				String resultado = contenido.replaceAll("[^\\x20-\\x7E\\n]", " ").replaceAll("\\s+", " ").trim();
+				return resultado.length() > 4000 ? resultado.substring(0, 4000) : resultado;
+			} catch (Exception ex) {
+				return "Tema educativo general.";
+			}
 		}
 	}
 
-	private String llamarApiIA(String textoPdf, String tituloTema) throws Exception {
-		String prompt = """
-				Eres un generador de preguntas educativas.
-				Basándote en el siguiente texto del tema "%s", genera exactamente 5 preguntas de tipo quiz.
-				Responde ÚNICAMENTE con un JSON válido con este formato exacto, sin texto adicional:
-				[
-				  {
-				    "enunciado": "¿Pregunta?",
-				    "respuestas": [
-				      {"texto": "Opción A", "esCorrecta": true},
-				      {"texto": "Opción B", "esCorrecta": false},
-				      {"texto": "Opción C", "esCorrecta": false},
-				      {"texto": "Opción D", "esCorrecta": false}
-				    ]
-				  }
-				]
+	private String llamarApiIA(String textoPdf, String tituloTema, String tipo) throws Exception {
+		String prompt;
 
-				Texto del tema:
-				%s
-				""".formatted(tituloTema, textoPdf);
+		if ("quiz".equals(tipo)) {
+			prompt = """
+					Eres un generador de preguntas educativas.
+					Basándote en el siguiente texto del tema "%s", genera exactamente 5 preguntas de tipo quiz.
+					Responde ÚNICAMENTE con un array JSON, sin texto adicional, sin markdown, sin bloques de código.
+					Formato exacto:
+					[{"enunciado":"¿Pregunta?","respuestas":[{"texto":"Opción A","esCorrecta":true},{"texto":"Opción B","esCorrecta":false},{"texto":"Opción C","esCorrecta":false},{"texto":"Opción D","esCorrecta":false}]}]
+					
+					Texto del tema:
+					%s
+					""".formatted(tituloTema, textoPdf);
+		} else {
+			// puzzle: frase con una palabra clave oculta como _____
+			prompt = """
+					Eres un generador de ejercicios educativos de completar frases.
+					Basándote en el siguiente texto del tema "%s", genera exactamente 5 frases incompletas.
+					En cada frase, oculta una palabra clave importante con _____.
+					El campo "respuesta" debe contener ÚNICAMENTE la palabra que falta (en minúsculas).
+					Responde ÚNICAMENTE con un array JSON, sin texto adicional, sin markdown, sin bloques de código.
+					Formato exacto:
+					[{"frase":"La _____ es el proceso por el que las plantas producen energía.","respuesta":"fotosíntesis"}]
+					
+					Texto del tema:
+					%s
+					""".formatted(tituloTema, textoPdf);
+		}
 
-		String cuerpo = objectMapper.writeValueAsString(Map.of("model", modelo, "max_tokens", 2000, "messages",
-				List.of(Map.of("role", "user", "content", prompt))));
+		String cuerpo = objectMapper.writeValueAsString(Map.of(
+				"model", modelo,
+				"max_tokens", 2000,
+				"temperature", 0.7,
+				"messages", List.of(
+						Map.of("role", "system", "content",
+								"Eres un asistente educativo. Responde SIEMPRE con JSON puro, sin markdown ni texto adicional."),
+						Map.of("role", "user", "content", prompt))));
 
 		HttpClient cliente = HttpClient.newHttpClient();
-		HttpRequest peticion = HttpRequest.newBuilder().uri(URI.create(iaUrl))
-				.header("Content-Type", "application/json").header("Authorization", "Bearer " + apiKey)
-				.POST(HttpRequest.BodyPublishers.ofString(cuerpo)).build();
+		HttpRequest peticion = HttpRequest.newBuilder()
+				.uri(URI.create(iaUrl))
+				.header("Content-Type", "application/json")
+				.header("Authorization", "Bearer " + apiKey)
+				.POST(HttpRequest.BodyPublishers.ofString(cuerpo))
+				.build();
 
 		HttpResponse<String> respuesta = cliente.send(peticion, HttpResponse.BodyHandlers.ofString());
 
+		if (respuesta.statusCode() != 200) {
+			throw new RuntimeException("Error en la API de IA. Código: " + respuesta.statusCode()
+					+ ". Respuesta: " + respuesta.body());
+		}
+
 		JsonNode raiz = objectMapper.readTree(respuesta.body());
-		return raiz.path("choices").get(0).path("message").path("content").asText();
+		JsonNode choices = raiz.path("choices");
+		if (choices.isEmpty() || !choices.isArray()) {
+			throw new RuntimeException("Respuesta inesperada de la API de IA: " + respuesta.body());
+		}
+		return choices.get(0).path("message").path("content").asText();
 	}
 
-	private void guardarPreguntasDesdeJson(String json, Tema tema) throws Exception {
-		// Limpiar posibles ```json ``` del modelo
-		json = json.replaceAll("```json", "").replaceAll("```", "").trim();
+	private void guardarPreguntasDesdeJson(String json, Tema tema, Pregunta.TipoPregunta tipo) throws Exception {
+		json = json.replaceAll("(?i)```json", "").replaceAll("```", "").trim();
+		int inicio = json.indexOf('[');
+		int fin = json.lastIndexOf(']');
+		if (inicio >= 0 && fin > inicio) {
+			json = json.substring(inicio, fin + 1);
+		}
 
 		JsonNode array = objectMapper.readTree(json);
+		if (!array.isArray() || array.isEmpty()) {
+			throw new RuntimeException("La IA no devolvió un array válido para tipo: " + tipo);
+		}
+
 		for (JsonNode nodo : array) {
 			Pregunta pregunta = new Pregunta();
-			pregunta.setEnunciado(nodo.get("enunciado").asText());
-			pregunta.setTipo(Pregunta.TipoPregunta.quiz);
+			pregunta.setTipo(tipo);
 			pregunta.setTema(tema);
-			preguntaRepositorio.save(pregunta);
 
-			for (JsonNode r : nodo.get("respuestas")) {
+			if (tipo == Pregunta.TipoPregunta.quiz) {
+				pregunta.setEnunciado(nodo.get("enunciado").asText());
+				preguntaRepositorio.save(pregunta);
+
+				for (JsonNode r : nodo.get("respuestas")) {
+					Respuesta respuesta = new Respuesta();
+					respuesta.setTexto(r.get("texto").asText());
+					respuesta.setEsCorrecta(r.get("esCorrecta").asBoolean());
+					respuesta.setPregunta(pregunta);
+					pregunta.getRespuestas().add(respuesta);
+				}
+
+			} else {
+				// puzzle: frase con _____ como enunciado, respuesta correcta = la palabra
+				pregunta.setEnunciado(nodo.get("frase").asText());
+				preguntaRepositorio.save(pregunta);
+
+				// Una única respuesta marcada como correcta
 				Respuesta respuesta = new Respuesta();
-				respuesta.setTexto(r.get("texto").asText());
-				respuesta.setEsCorrecta(r.get("esCorrecta").asBoolean());
+				respuesta.setTexto(nodo.get("respuesta").asText().toLowerCase().trim());
+				respuesta.setEsCorrecta(true);
 				respuesta.setPregunta(pregunta);
-				// Guardar con cascada al guardar la pregunta de nuevo
 				pregunta.getRespuestas().add(respuesta);
 			}
+
 			preguntaRepositorio.save(pregunta);
 		}
 	}
