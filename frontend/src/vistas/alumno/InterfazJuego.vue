@@ -1,27 +1,50 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { servicioJuegos } from "@/servicios/api";
+import { servicioJuegos, servicioEstadisticas } from "@/servicios/api";
 
 const rutaActual = useRoute();
 const enrutador = useRouter();
 const identificadorTema = rutaActual.params.identificadorTema;
 const tipoJuego = rutaActual.params.tipoJuego;
+const identificadorAsignatura = rutaActual.query.idAsignatura;
+
+const esPuzzle = tipoJuego === "puzzle";
 
 const listaPreguntas = ref([]);
 const estaCargando = ref(true);
 const errorCarga = ref(null);
 
 const indicePreguntaActual = ref(0);
-const identificadorRespuestaSeleccionada = ref(null);
 const preguntaRespondida = ref(false);
 const puntuacionTotal = ref(0);
 const juegoTerminado = ref(false);
+
+// Quiz
+const identificadorRespuestaSeleccionada = ref(null);
+
+// Puzzle
+const respuestaEscrita = ref("");
+const resultadoPuzzle = ref(null); // null | "correcta" | "incorrecta"
 
 const preguntaActual = computed(() => listaPreguntas.value[indicePreguntaActual.value]);
 const porcentajeProgreso = computed(() => {
   if (listaPreguntas.value.length === 0) return 0;
   return ((indicePreguntaActual.value + 1) / listaPreguntas.value.length) * 100;
+});
+
+// Para puzzle: obtener la palabra correcta (única respuesta con esCorrecta=true)
+const palabraCorrecta = computed(() => {
+  if (!preguntaActual.value) return "";
+  const correcta = preguntaActual.value.respuestas.find(r => r.esCorrecta);
+  return correcta ? correcta.texto.toLowerCase().trim() : "";
+});
+
+// Partir el enunciado del puzzle en "antes" y "después" del hueco
+const partesPuzzle = computed(() => {
+  if (!preguntaActual.value) return { antes: "", despues: "" };
+  const partes = preguntaActual.value.enunciado.split("_____");
+  return { antes: partes[0] || "", despues: partes[1] || "" };
 });
 
 onMounted(async () => {
@@ -36,6 +59,7 @@ onMounted(async () => {
   }
 });
 
+// --- Quiz ---
 function seleccionarRespuesta(respuesta) {
   if (preguntaRespondida.value) return;
   identificadorRespuestaSeleccionada.value = respuesta.id_respuesta;
@@ -43,20 +67,48 @@ function seleccionarRespuesta(respuesta) {
   if (respuesta.esCorrecta) puntuacionTotal.value++;
 }
 
-function avanzarSiguientePregunta() {
+// --- Puzzle ---
+function comprobarPuzzle() {
+  if (preguntaRespondida.value) return;
+  const escrita = respuestaEscrita.value.toLowerCase().trim();
+  const correcta = palabraCorrecta.value;
+  preguntaRespondida.value = true;
+  if (escrita === correcta) {
+    resultadoPuzzle.value = "correcta";
+    puntuacionTotal.value++;
+  } else {
+    resultadoPuzzle.value = "incorrecta";
+  }
+}
+
+// --- Común ---
+async function avanzarSiguientePregunta() {
   if (indicePreguntaActual.value < listaPreguntas.value.length - 1) {
     indicePreguntaActual.value++;
-    identificadorRespuestaSeleccionada.value = null;
     preguntaRespondida.value = false;
+    identificadorRespuestaSeleccionada.value = null;
+    respuestaEscrita.value = "";
+    resultadoPuzzle.value = null;
   } else {
     juegoTerminado.value = true;
+    if (identificadorAsignatura) {
+      try {
+        await servicioEstadisticas.registrarPartida(
+          identificadorAsignatura,
+          puntuacionTotal.value,
+          listaPreguntas.value.length
+        );
+      } catch {}
+    }
   }
 }
 
 function reiniciarJuego() {
   indicePreguntaActual.value = 0;
-  identificadorRespuestaSeleccionada.value = null;
   preguntaRespondida.value = false;
+  identificadorRespuestaSeleccionada.value = null;
+  respuestaEscrita.value = "";
+  resultadoPuzzle.value = null;
   puntuacionTotal.value = 0;
   juegoTerminado.value = false;
 }
@@ -64,34 +116,38 @@ function reiniciarJuego() {
 
 <template>
   <div class="contenedor-juego container py-4">
+
+    <!-- Cargando -->
     <div v-if="estaCargando" class="tarjeta animacion-aparecer-desde-abajo tarjeta-estado">
       <div class="indicador-carga indicador-carga-centrado"></div>
       <p class="texto-estado">Generando preguntas con IA a partir del temario...</p>
     </div>
 
+    <!-- Error -->
     <div v-else-if="errorCarga" class="tarjeta animacion-aparecer-desde-abajo tarjeta-estado">
       <div class="icono-estado-grande">⚠️</div>
       <p class="titulo-estado">No se pudieron cargar las preguntas</p>
       <p class="descripcion-estado">{{ errorCarga }}</p>
-      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a
-        juegos</button>
+      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a juegos</button>
     </div>
 
+    <!-- Sin preguntas -->
     <div v-else-if="listaPreguntas.length === 0" class="tarjeta animacion-aparecer-desde-abajo tarjeta-estado">
       <div class="icono-estado-grande">📭</div>
       <p class="titulo-estado">No hay preguntas disponibles</p>
       <p class="descripcion-estado">Asegúrate de que el tema tiene un PDF subido con contenido suficiente</p>
-      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a
-        juegos</button>
+      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a juegos</button>
     </div>
 
-    <div v-if="juegoTerminado" class="tarjeta animacion-escalar-entrada tarjeta-estado">
+    <!-- Resultado final -->
+    <div v-else-if="juegoTerminado" class="tarjeta animacion-escalar-entrada tarjeta-estado">
       <div class="icono-resultado">🎉</div>
       <h2 class="titulo-resultado">¡Partida terminada!</h2>
       <div class="valor-estadistica puntuacion-final">{{ puntuacionTotal }}/{{ listaPreguntas.length }}</div>
       <p class="mensaje-resultado">
-        {{ puntuacionTotal === listaPreguntas.length ? '¡Perfecto! 🏆' : puntuacionTotal >= listaPreguntas.length / 2 ?
-          '¡Buen trabajo! 💪' : 'Sigue practicando 📖' }}
+        {{ puntuacionTotal === listaPreguntas.length ? '¡Perfecto! 🏆'
+          : puntuacionTotal >= listaPreguntas.length / 2 ? '¡Buen trabajo! 💪'
+          : 'Sigue practicando 📖' }}
       </p>
       <div class="acciones-resultado">
         <button class="boton boton-principal" @click="reiniciarJuego">🔄 Jugar de nuevo</button>
@@ -99,6 +155,7 @@ function reiniciarJuego() {
       </div>
     </div>
 
+    <!-- Juego activo -->
     <template v-else>
       <div class="seccion-progreso">
         <div class="fila-progreso">
@@ -110,25 +167,69 @@ function reiniciarJuego() {
         </div>
       </div>
 
-      <div class="tarjeta animacion-aparecer-desde-abajo tarjeta-pregunta">
+      <!-- QUIZ -->
+      <div v-if="!esPuzzle" class="tarjeta animacion-aparecer-desde-abajo tarjeta-pregunta">
         <h2 class="enunciado-pregunta">{{ preguntaActual.enunciado }}</h2>
         <div class="lista-respuestas">
-          <button v-for="respuesta in preguntaActual.respuestas" :key="respuesta.id_respuesta" class="boton-respuesta"
+          <button
+            v-for="respuesta in preguntaActual.respuestas"
+            :key="respuesta.id_respuesta"
+            class="boton-respuesta"
             :class="{
               'respuesta-seleccionada': identificadorRespuestaSeleccionada === respuesta.id_respuesta,
               'respuesta-correcta': preguntaRespondida && respuesta.esCorrecta,
               'respuesta-incorrecta': preguntaRespondida && identificadorRespuestaSeleccionada === respuesta.id_respuesta && !respuesta.esCorrecta
-            }" @click="seleccionarRespuesta(respuesta)" :disabled="preguntaRespondida">
+            }"
+            @click="seleccionarRespuesta(respuesta)"
+            :disabled="preguntaRespondida"
+          >
             <span>{{ respuesta.texto }}</span>
             <span v-if="preguntaRespondida && respuesta.esCorrecta" class="icono-resultado-respuesta">✅</span>
-            <span
-              v-else-if="preguntaRespondida && identificadorRespuestaSeleccionada === respuesta.id_respuesta && !respuesta.esCorrecta"
-              class="icono-resultado-respuesta">❌</span>
+            <span v-else-if="preguntaRespondida && identificadorRespuestaSeleccionada === respuesta.id_respuesta && !respuesta.esCorrecta" class="icono-resultado-respuesta">❌</span>
           </button>
         </div>
         <div v-if="preguntaRespondida" class="contenedor-boton-siguiente">
           <button class="boton boton-principal" @click="avanzarSiguientePregunta">
-            {{ indicePreguntaActual < listaPreguntas.length - 1 ? 'Siguiente →' : 'Ver resultado' }} </button>
+            {{ indicePreguntaActual < listaPreguntas.length - 1 ? 'Siguiente →' : 'Ver resultado' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- PUZZLE -->
+      <div v-else class="tarjeta animacion-aparecer-desde-abajo tarjeta-pregunta">
+        <p class="etiqueta-puzzle">🧩 Completa la frase</p>
+        <div class="frase-puzzle">
+          <span class="texto-frase">{{ partesPuzzle.antes }}</span>
+          <span v-if="!preguntaRespondida" class="hueco-activo">_____</span>
+          <span v-else class="palabra-revelada" :class="resultadoPuzzle === 'correcta' ? 'palabra-correcta' : 'palabra-incorrecta'">
+            {{ palabraCorrecta }}
+          </span>
+          <span class="texto-frase">{{ partesPuzzle.despues }}</span>
+        </div>
+
+        <div v-if="!preguntaRespondida" class="grupo-input-puzzle">
+          <input
+            v-model="respuestaEscrita"
+            class="input-puzzle"
+            type="text"
+            placeholder="Escribe la palabra que falta..."
+            @keyup.enter="comprobarPuzzle"
+            autofocus
+          />
+          <button class="boton boton-principal" @click="comprobarPuzzle" :disabled="!respuestaEscrita.trim()">
+            Comprobar ✓
+          </button>
+        </div>
+
+        <div v-else class="feedback-puzzle" :class="resultadoPuzzle === 'correcta' ? 'feedback-correcto' : 'feedback-incorrecto'">
+          <span v-if="resultadoPuzzle === 'correcta'">✅ ¡Correcto!</span>
+          <span v-else>❌ Incorrecto — la respuesta era: <strong>{{ palabraCorrecta }}</strong></span>
+        </div>
+
+        <div v-if="preguntaRespondida" class="contenedor-boton-siguiente">
+          <button class="boton boton-principal" @click="avanzarSiguientePregunta">
+            {{ indicePreguntaActual < listaPreguntas.length - 1 ? 'Siguiente →' : 'Ver resultado' }}
+          </button>
         </div>
       </div>
     </template>
@@ -232,6 +333,7 @@ function reiniciarJuego() {
   padding: var(--espacio-extra-grande);
 }
 
+/* Quiz */
 .enunciado-pregunta {
   font-size: 1.15rem;
   font-weight: 700;
@@ -247,11 +349,6 @@ function reiniciarJuego() {
 
 .icono-resultado-respuesta {
   font-size: 1.1rem;
-}
-
-.contenedor-boton-siguiente {
-  margin-top: var(--espacio-extra-grande);
-  text-align: right;
 }
 
 .boton-respuesta {
@@ -293,5 +390,105 @@ function reiniciarJuego() {
 
 .boton-respuesta:disabled {
   cursor: default;
+}
+
+/* Puzzle */
+.etiqueta-puzzle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-texto-secundario);
+  margin-bottom: var(--espacio-medio);
+}
+
+.frase-puzzle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 2;
+  margin-bottom: var(--espacio-extra-grande);
+  background: var(--color-fondo-terciario);
+  border-radius: var(--redondeo-medio);
+  padding: var(--espacio-grande);
+}
+
+.texto-frase {
+  color: var(--color-texto-principal);
+}
+
+.hueco-activo {
+  display: inline-block;
+  min-width: 80px;
+  border-bottom: 2.5px solid var(--color-acento);
+  color: var(--color-acento);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin: 0 4px;
+}
+
+.palabra-revelada {
+  display: inline-block;
+  margin: 0 4px;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-weight: 800;
+}
+
+.palabra-correcta {
+  background: var(--color-exito-claro);
+  color: var(--color-exito);
+}
+
+.palabra-incorrecta {
+  background: var(--color-error-claro);
+  color: var(--color-error);
+}
+
+.grupo-input-puzzle {
+  display: flex;
+  gap: var(--espacio-pequeno);
+  margin-bottom: var(--espacio-medio);
+}
+
+.input-puzzle {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: var(--redondeo-medio);
+  border: 1.5px solid var(--color-borde-principal);
+  background: var(--color-fondo-secundario);
+  color: var(--color-texto-principal);
+  font-family: var(--fuente-cuerpo);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--transicion-rapida);
+}
+
+.input-puzzle:focus {
+  border-color: var(--color-acento);
+}
+
+.feedback-puzzle {
+  padding: 0.75rem 1rem;
+  border-radius: var(--redondeo-medio);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: var(--espacio-medio);
+}
+
+.feedback-correcto {
+  background: var(--color-exito-claro);
+  color: var(--color-exito);
+  border: 1px solid var(--color-exito);
+}
+
+.feedback-incorrecto {
+  background: var(--color-error-claro);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+}
+
+.contenedor-boton-siguiente {
+  margin-top: var(--espacio-extra-grande);
+  text-align: right;
 }
 </style>

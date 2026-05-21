@@ -1,14 +1,27 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usarAlmacenAutenticacion } from '@/almacenes/autenticacion'
+import { servicioAsignaturas } from '@/servicios/api'
 
 const enrutador = useRouter()
 const almacenAutenticacion = usarAlmacenAutenticacion()
 
 const misAsignaturas = ref([])
 
-const totalTemas = 0
+const totalTemas = computed(() =>
+  misAsignaturas.value.reduce((suma, a) => suma + (a.cantidad_temas || 0), 0)
+)
+
+onMounted(async () => {
+  try {
+    const idProfesor = almacenAutenticacion.usuarioActual?.id_usuario
+    const respuesta = await servicioAsignaturas.obtenerPorProfesor(idProfesor)
+    misAsignaturas.value = respuesta.data
+  } catch {
+    misAsignaturas.value = []
+  }
+})
 </script>
 
 <template>
@@ -19,22 +32,22 @@ const totalTemas = 0
     </div>
     <div class="row g-3 mb-4">
       <div class="col-12 col-md-4">
-        <div class="tarjeta tarjeta-estadistica animacion-aparecer-desde-abajo h-100"><span
-            class="icono-estadistica">📘</span>
+        <div class="tarjeta tarjeta-estadistica animacion-aparecer-desde-abajo h-100">
+          <span class="icono-estadistica">📘</span>
           <div class="valor-estadistica">{{ misAsignaturas.length }}</div>
           <div class="descripcion-estadistica">Mis asignaturas</div>
         </div>
       </div>
       <div class="col-12 col-md-4">
-        <div class="tarjeta tarjeta-estadistica animacion-aparecer-desde-abajo h-100"><span
-            class="icono-estadistica">📄</span>
+        <div class="tarjeta tarjeta-estadistica animacion-aparecer-desde-abajo h-100">
+          <span class="icono-estadistica">📄</span>
           <div class="valor-estadistica">{{ totalTemas }}</div>
           <div class="descripcion-estadistica">Temas subidos</div>
         </div>
       </div>
       <div class="col-12 col-md-4">
-        <div class="tarjeta tarjeta-estadistica animacion-aparecer-desde-abajo h-100"><span
-            class="icono-estadistica">🎓</span>
+        <div class="tarjeta tarjeta-estadistica animacion-aparecer-desde-abajo h-100">
+          <span class="icono-estadistica">🎓</span>
           <div class="valor-estadistica">0</div>
           <div class="descripcion-estadistica">Alumnos activos</div>
         </div>
@@ -49,14 +62,17 @@ const totalTemas = 0
               <h3 class="fw-bold texto-nombre-grande">{{ asignatura.nombre }}</h3>
               <p class="text-secondary small mt-1">{{ asignatura.descripcion }}</p>
             </div>
-            <span class="badge bg-success bg-opacity-10 text-success">{{ asignatura.cantidadTemas }} temas</span>
+            <span class="badge bg-success bg-opacity-10 text-success">{{ asignatura.cantidad_temas }} temas</span>
           </div>
           <div class="d-flex gap-2 mt-3">
             <button class="btn btn-primary btn-sm"
-              @click="enrutador.push({ name: 'SubirTemario', params: { identificadorAsignatura: asignatura.id_asignatura } })">📄
-              Subir temario</button>
-            <button class="btn btn-outline-secondary btn-sm" @click="enrutador.push({ name: 'MisAsignaturas' })">✏️
-              Editar</button>
+              @click="enrutador.push({ name: 'SubirTemario', params: { identificadorAsignatura: asignatura.id_asignatura } })">
+              📄 Subir temario
+            </button>
+            <button class="btn btn-outline-secondary btn-sm"
+              @click="enrutador.push({ name: 'MisAsignaturas' })">
+              ✏️ Editar
+            </button>
           </div>
         </div>
       </div>

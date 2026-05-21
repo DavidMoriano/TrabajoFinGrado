@@ -48,7 +48,11 @@ async function seleccionarAsignatura(asignatura) {
 
 function iniciarJuego(tipoJuego) {
   if (temaSeleccionado.value) {
-    enrutador.push({ name: "InterfazJuego", params: { identificadorTema: temaSeleccionado.value.id_tema, tipoJuego: tipoJuego } });
+    enrutador.push({
+      name: "InterfazJuego",
+      params: { identificadorTema: temaSeleccionado.value.id_tema, tipoJuego: tipoJuego },
+      query: { idAsignatura: asignaturaSeleccionada.value?.id_asignatura }
+    });
   }
 }
 </script>

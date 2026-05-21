@@ -40,7 +40,7 @@ onMounted(async () => {
             <td class="texto-secundario-pequeno">{{ alumno.email }}</td>
             <td><span class="etiqueta etiqueta-acento">{{ alumno.estudios }}</span></td>
             <td class="text-center">{{ alumno.edad }}</td>
-            <td class="texto-terciario-pequeno">{{ alumno.fechaRegistro }}</td>
+            <td class="texto-terciario-pequeno">{{ alumno.fecha_registro }}</td>
           </tr>
         </tbody>
       </table>

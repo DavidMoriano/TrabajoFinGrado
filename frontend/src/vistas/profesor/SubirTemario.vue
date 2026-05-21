@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { servicioTemas } from "@/servicios/api";
+import { servicioJuegos } from "@/servicios/api";
 
 const rutaActual = useRoute();
 const identificadorAsignatura = rutaActual.params.identificadorAsignatura;
@@ -13,11 +14,14 @@ const datosFormularioTema = ref({ titulo: "", descripcion: "", archivoSelecciona
 const nombreArchivoSeleccionado = ref("");
 const estaSobreZonaArrastre = ref(false);
 
+// Estado de regeneración por tema { [idTema]: 'idle' | 'cargando' | 'ok' | 'error' }
+const estadoRegeneracion = ref({});
+
 onMounted(async () => {
   try {
     const respuesta = await servicioTemas.obtenerPorAsignatura(identificadorAsignatura);
     listaTemas.value = respuesta.data;
-  } catch (error) {
+  } catch {
     listaTemas.value = [];
   } finally {
     estaCargando.value = false;
@@ -26,13 +30,19 @@ onMounted(async () => {
 
 function alSeleccionarArchivo(evento) {
   const archivo = evento.target.files[0];
-  if (archivo) { datosFormularioTema.value.archivoSeleccionado = archivo; nombreArchivoSeleccionado.value = archivo.name; }
+  if (archivo) {
+    datosFormularioTema.value.archivoSeleccionado = archivo;
+    nombreArchivoSeleccionado.value = archivo.name;
+  }
 }
 
 function alSoltarArchivo(evento) {
   estaSobreZonaArrastre.value = false;
   const archivo = evento.dataTransfer.files[0];
-  if (archivo && archivo.type === "application/pdf") { datosFormularioTema.value.archivoSeleccionado = archivo; nombreArchivoSeleccionado.value = archivo.name; }
+  if (archivo && archivo.type === "application/pdf") {
+    datosFormularioTema.value.archivoSeleccionado = archivo;
+    nombreArchivoSeleccionado.value = archivo.name;
+  }
 }
 
 async function agregarTema() {
@@ -47,18 +57,45 @@ async function agregarTema() {
     mostrarVentanaModal.value = false;
     datosFormularioTema.value = { titulo: "", descripcion: "", archivoSeleccionado: null };
     nombreArchivoSeleccionado.value = "";
-  } catch (error) {
+  } catch {
     alert("Error al subir el tema");
   }
 }
 
 async function eliminarTema(identificador) {
-  if (confirm("¿Eliminar este tema?")) {
+  if (confirm("¿Eliminar este tema? También se borrarán sus preguntas generadas.")) {
     try {
+      // Primero borrar preguntas, luego el tema
+      await servicioJuegos.borrarPreguntas(identificador).catch(() => {});
       await servicioTemas.eliminar(identificador);
-      listaTemas.value = listaTemas.value.filter(tema => tema.id_tema !== identificador);
-    } catch (error) {
+      listaTemas.value = listaTemas.value.filter(t => t.id_tema !== identificador);
+    } catch {
       alert("Error al eliminar el tema");
+    }
+  }
+}
+
+async function regenerarPreguntas(idTema) {
+  estadoRegeneracion.value[idTema] = "cargando";
+  try {
+    await servicioJuegos.regenerarPreguntas(idTema);
+    estadoRegeneracion.value[idTema] = "ok";
+    setTimeout(() => { estadoRegeneracion.value[idTema] = "idle"; }, 3000);
+  } catch {
+    estadoRegeneracion.value[idTema] = "error";
+    setTimeout(() => { estadoRegeneracion.value[idTema] = "idle"; }, 3000);
+  }
+}
+
+async function borrarPreguntas(idTema) {
+  if (confirm("¿Borrar las preguntas de este tema? Se podrán regenerar después.")) {
+    estadoRegeneracion.value[idTema] = "cargando";
+    try {
+      await servicioJuegos.borrarPreguntas(idTema);
+      estadoRegeneracion.value[idTema] = "idle";
+    } catch {
+      estadoRegeneracion.value[idTema] = "error";
+      setTimeout(() => { estadoRegeneracion.value[idTema] = "idle"; }, 3000);
     }
   }
 }
@@ -69,34 +106,73 @@ async function eliminarTema(identificador) {
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
       <div>
         <h1 class="titulo-pagina">Temario de la asignatura</h1>
-        <p class="subtitulo-pagina">Sube archivos PDF con el contenido de cada tema</p>
+        <p class="subtitulo-pagina">Sube PDFs y gestiona las preguntas generadas por IA</p>
       </div>
       <button class="btn btn-primary" @click="mostrarVentanaModal = true">+ Subir tema</button>
     </div>
 
-    <div v-if="listaTemas.length === 0" class="estado-vacio">
+    <div v-if="estaCargando" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <div v-else-if="listaTemas.length === 0" class="estado-vacio">
       <div class="estado-vacio-icono">📄</div>
       <p class="estado-vacio-titulo">Sin temas todavía</p>
       <p class="estado-vacio-texto">Sube tu primer PDF para que los alumnos puedan estudiar</p>
     </div>
 
     <div v-else class="d-flex flex-column gap-3">
-      <div v-for="tema in listaTemas" :key="tema.id_tema" class="tarjeta animacion-aparecer-desde-abajo fila-tema">
-        <div class="d-flex align-items-center gap-3 flex-grow-1">
+      <div v-for="tema in listaTemas" :key="tema.id_tema"
+        class="tarjeta animacion-aparecer-desde-abajo">
+
+        <!-- Fila principal del tema -->
+        <div class="d-flex align-items-center gap-3 flex-wrap">
           <div class="icono-tema-pdf">📕</div>
-          <div class="contenido-tema">
-            <h3 class="titulo-tema">{{ tema.titulo }}</h3>
-            <p class="descripcion-tema">{{ tema.descripcion }}</p>
+          <div class="flex-grow-1 min-w-0">
+            <h3 class="titulo-tema mb-0">{{ tema.titulo }}</h3>
+            <p class="descripcion-tema mb-0">{{ tema.descripcion }}</p>
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-shrink-0 flex-wrap">
+            <span class="badge bg-primary bg-opacity-10 text-primary">{{ tema.nombre_archivo_pdf }}</span>
+            <span class="texto-fecha">{{ tema.fecha_subida }}</span>
+            <button class="btn btn-outline-danger btn-sm" @click="eliminarTema(tema.id_tema)">🗑️ Tema</button>
           </div>
         </div>
-        <div class="d-flex align-items-center gap-3 flex-shrink-0">
-          <span class="badge bg-primary bg-opacity-10 text-primary">{{ tema.nombreArchivoPdf }}</span>
-          <span class="texto-fecha">{{ tema.fechaSubida }}</span>
-          <button class="btn btn-outline-danger btn-sm" @click="eliminarTema(tema.id_tema)">🗑️</button>
+
+        <!-- Fila de acciones de preguntas IA -->
+        <div class="barra-ia mt-3 pt-3">
+          <span class="etiqueta-ia">🤖 Preguntas IA</span>
+          <div class="acciones-ia">
+
+            <!-- Regenerar tests -->
+            <button
+              class="btn btn-sm btn-outline-primary"
+              :disabled="estadoRegeneracion[tema.id_tema] === 'cargando'"
+              @click="regenerarPreguntas(tema.id_tema)"
+            >
+              <span v-if="estadoRegeneracion[tema.id_tema] === 'cargando'">
+                <span class="spinner-border spinner-border-sm me-1"></span>Generando...
+              </span>
+              <span v-else-if="estadoRegeneracion[tema.id_tema] === 'ok'">✅ Regeneradas</span>
+              <span v-else-if="estadoRegeneracion[tema.id_tema] === 'error'">❌ Error</span>
+              <span v-else>🔄 Regenerar preguntas</span>
+            </button>
+
+            <!-- Borrar preguntas -->
+            <button
+              class="btn btn-sm btn-outline-danger"
+              :disabled="estadoRegeneracion[tema.id_tema] === 'cargando'"
+              @click="borrarPreguntas(tema.id_tema)"
+            >
+              🗑️ Borrar preguntas
+            </button>
+          </div>
         </div>
+
       </div>
     </div>
 
+    <!-- Modal subir tema -->
     <div v-if="mostrarVentanaModal" class="superposicion-modal" @click.self="mostrarVentanaModal = false">
       <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">
@@ -135,8 +211,7 @@ async function eliminarTema(identificador) {
           </div>
           <div class="acciones-modal">
             <button type="button" class="boton boton-secundario" @click="mostrarVentanaModal = false">Cancelar</button>
-            <button type="submit" class="boton boton-principal" :disabled="!nombreArchivoSeleccionado">Subir
-              tema</button>
+            <button type="submit" class="boton boton-principal" :disabled="!nombreArchivoSeleccionado">Subir tema</button>
           </div>
         </form>
       </div>
@@ -145,13 +220,6 @@ async function eliminarTema(identificador) {
 </template>
 
 <style scoped>
-.fila-tema {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
 .icono-tema-pdf {
   width: 44px;
   height: 44px;
@@ -162,11 +230,6 @@ async function eliminarTema(identificador) {
   justify-content: center;
   font-size: 1.3rem;
   flex-shrink: 0;
-}
-
-.contenido-tema {
-  flex: 1;
-  min-width: 0;
 }
 
 .titulo-tema {
@@ -185,6 +248,27 @@ async function eliminarTema(identificador) {
 .texto-fecha {
   font-size: 0.78rem;
   color: var(--color-texto-terciario);
+}
+
+.barra-ia {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-medio);
+  border-top: 1px solid var(--color-borde-secundario);
+  flex-wrap: wrap;
+}
+
+.etiqueta-ia {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-texto-secundario);
+  white-space: nowrap;
+}
+
+.acciones-ia {
+  display: flex;
+  gap: var(--espacio-pequeno);
+  flex-wrap: wrap;
 }
 
 .zona-arrastre-archivo {

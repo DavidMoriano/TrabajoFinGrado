@@ -38,7 +38,7 @@ onMounted(async () => {
             <td class="fw-semibold">{{ profesor.nombre }} {{ profesor.apellidos }}</td>
             <td class="texto-secundario-pequeno">{{ profesor.email }}</td>
             <td><span class="etiqueta etiqueta-acento">{{ profesor.estudios }}</span></td>
-            <td class="texto-terciario-pequeno">{{ profesor.fechaRegistro }}</td>
+            <td class="texto-terciario-pequeno">{{ profesor.fecha_registro }}</td>
           </tr>
         </tbody>
       </table>

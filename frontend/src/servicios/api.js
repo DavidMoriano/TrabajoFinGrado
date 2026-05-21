@@ -129,15 +129,25 @@ export const servicioJuegos = {
       id_tema: identificadorTema,
     });
   },
+  borrarPreguntas(identificadorTema) {
+    return clienteHttp.delete(`/juegos/preguntas?tema=${identificadorTema}`);
+  },
+  regenerarPreguntas(identificadorTema) {
+    return clienteHttp.post("/juegos/regenerar-preguntas", {
+      id_tema: identificadorTema,
+    });
+  },
 };
 
 export const servicioEstadisticas = {
   obtenerMisEstadisticas() {
     return clienteHttp.get("/estadisticas/me");
   },
-  registrarAcceso(identificadorAsignatura) {
+  registrarPartida(identificadorAsignatura, aciertos, totalPreguntas) {
     return clienteHttp.post("/estadisticas", {
       id_asignatura: identificadorAsignatura,
+      aciertos: aciertos,
+      total_preguntas: totalPreguntas,
     });
   },
   obtenerEstadisticasGlobales() {

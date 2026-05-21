@@ -17,7 +17,8 @@ const datosFormularioAsignatura = ref({ nombre: '', descripcion: '' })
 
 onMounted(async () => {
   try {
-    const respuesta = await servicioAsignaturas.obtenerPorProfesor(almacenAutenticacion.usuarioActual.idUsuario)
+    const idProfesor = almacenAutenticacion.usuarioActual?.id_usuario
+    const respuesta = await servicioAsignaturas.obtenerPorProfesor(idProfesor)
     listaAsignaturas.value = respuesta.data
   } catch (error) {
     listaAsignaturas.value = []
@@ -33,7 +34,7 @@ function abrirModalCreacion() {
 }
 
 function abrirModalEdicion(asignatura) {
-  identificadorEdicion.value = asignatura.idAsignatura
+  identificadorEdicion.value = asignatura.id_asignatura
   datosFormularioAsignatura.value = { nombre: asignatura.nombre, descripcion: asignatura.descripcion }
   mostrarVentanaModal.value = true
 }
@@ -42,7 +43,7 @@ async function guardarAsignatura() {
   try {
     if (identificadorEdicion.value) {
       const respuesta = await servicioAsignaturas.actualizar(identificadorEdicion.value, datosFormularioAsignatura.value)
-      const indice = listaAsignaturas.value.findIndex(a => a.idAsignatura === identificadorEdicion.value)
+      const indice = listaAsignaturas.value.findIndex(a => a.id_asignatura === identificadorEdicion.value)
       if (indice >= 0) listaAsignaturas.value[indice] = respuesta.data
     } else {
       const respuesta = await servicioAsignaturas.crear(datosFormularioAsignatura.value)
@@ -62,11 +63,10 @@ function pedirConfirmacionEliminar(identificador) {
 async function confirmarEliminar() {
   try {
     await servicioAsignaturas.eliminar(identificadorAEliminar.value)
-    listaAsignaturas.value = listaAsignaturas.value.filter(a => a.idAsignatura !== identificadorAEliminar.value)
+    listaAsignaturas.value = listaAsignaturas.value.filter(a => a.id_asignatura !== identificadorAEliminar.value)
     mostrarModalConfirmacion.value = false
     identificadorAEliminar.value = null
   } catch (error) {
-    console.error('Error al eliminar:', error)
     alert('Error: ' + (error.response?.data?.message || error.message))
   }
 }
@@ -87,7 +87,11 @@ function cancelarEliminar() {
       <button class="btn btn-primary" @click="abrirModalCreacion">+ Nueva asignatura</button>
     </div>
 
-    <div v-if="listaAsignaturas.length === 0" class="estado-vacio">
+    <div v-if="estaCargando" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <div v-else-if="listaAsignaturas.length === 0" class="estado-vacio">
       <div class="estado-vacio-icono">📘</div>
       <p class="estado-vacio-titulo">Sin asignaturas</p>
       <p class="estado-vacio-texto">Crea tu primera asignatura para empezar a subir temario</p>
@@ -95,25 +99,25 @@ function cancelarEliminar() {
     </div>
 
     <div v-else class="row g-3">
-      <div v-for="asignatura in listaAsignaturas" :key="asignatura.idAsignatura" class="col-12 col-md-6">
+      <div v-for="asignatura in listaAsignaturas" :key="asignatura.id_asignatura" class="col-12 col-md-6">
         <div class="tarjeta tarjeta-interactiva animacion-aparecer-desde-abajo h-100">
           <div class="d-flex justify-content-between align-items-start">
             <h3 class="fw-bold texto-nombre-grande">{{ asignatura.nombre }}</h3>
             <span class="badge bg-success bg-opacity-10 text-success">
-              {{ asignatura.cantidadTemas }} temas
+              {{ asignatura.cantidad_temas }} temas
             </span>
           </div>
           <p class="text-secondary small my-2">{{ asignatura.descripcion }}</p>
           <div class="d-flex gap-2 mt-3">
             <button class="btn btn-primary btn-sm"
-              @click.stop="enrutador.push({ name: 'SubirTemario', params: { identificadorAsignatura: asignatura.idAsignatura } })">
+              @click.stop="enrutador.push({ name: 'SubirTemario', params: { identificadorAsignatura: asignatura.id_asignatura } })">
               📄 Temario
             </button>
             <button class="btn btn-outline-secondary btn-sm" @click.stop="abrirModalEdicion(asignatura)">
               ✏️ Editar
             </button>
             <button class="btn btn-outline-danger btn-sm"
-              @click.stop="pedirConfirmacionEliminar(asignatura.idAsignatura)">
+              @click.stop="pedirConfirmacionEliminar(asignatura.id_asignatura)">
               🗑️ Eliminar
             </button>
           </div>
@@ -121,7 +125,7 @@ function cancelarEliminar() {
       </div>
     </div>
 
-    <!-- Modal editar / crear -->
+    <!-- Modal crear / editar -->
     <div v-if="mostrarVentanaModal" class="superposicion-modal" @click.self="mostrarVentanaModal = false">
       <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">
@@ -152,7 +156,7 @@ function cancelarEliminar() {
 
     <!-- Modal confirmación eliminar -->
     <div v-if="mostrarModalConfirmacion" class="superposicion-modal">
-      <div class="contenido-modal animacion-escalar-entrada modal-eliminar">
+      <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">
           <h2 class="titulo-modal">Eliminar asignatura</h2>
         </div>
@@ -160,12 +164,8 @@ function cancelarEliminar() {
           ¿Estás seguro de que quieres eliminar esta asignatura? Esta acción no se puede deshacer.
         </p>
         <div class="acciones-modal">
-          <button class="boton boton-secundario" @click="cancelarEliminar">
-            Cancelar
-          </button>
-          <button class="boton boton-principal boton-eliminar-confirmar" @click="confirmarEliminar">
-            Eliminar
-          </button>
+          <button class="boton boton-secundario" @click="cancelarEliminar">Cancelar</button>
+          <button class="boton boton-principal boton-eliminar-confirmar" @click="confirmarEliminar">Eliminar</button>
         </div>
       </div>
     </div>

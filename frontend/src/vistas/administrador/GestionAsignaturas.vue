@@ -95,8 +95,8 @@ async function eliminarAsignatura(identificador) {
             <td class="fw-semibold">{{ asignatura.nombre }}</td>
             <td class="texto-descripcion-truncada">
               {{ asignatura.descripcion }}</td>
-            <td><span class="etiqueta etiqueta-acento">{{ asignatura.nombreCentro }}</span></td>
-            <td class="texto-pequeno">{{ asignatura.nombreProfesor }}</td>
+            <td><span class="etiqueta etiqueta-acento">{{ asignatura.nombre_centro }}</span></td>
+            <td class="texto-pequeno">{{ asignatura.nombre_profesor }}</td>
             <td class="text-center">
               <button class="boton boton-fantasma boton-pequeno" @click="abrirModalEdicion(asignatura)">✏️</button>
               <button class="boton boton-fantasma boton-pequeno texto-error"
