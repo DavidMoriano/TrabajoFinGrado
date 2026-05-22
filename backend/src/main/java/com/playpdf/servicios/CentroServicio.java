@@ -23,6 +23,11 @@ public class CentroServicio {
 		return centroRepositorio.findById(id).orElseThrow(() -> new RuntimeException("Centro no encontrado: " + id));
 	}
 
+	public Centro obtenerPorCodigo(String codigo) {
+		return centroRepositorio.findByCodigoAcceso(codigo.toUpperCase())
+				.orElseThrow(() -> new RuntimeException("Código de acceso incorrecto"));
+	}
+
 	public Centro crear(Centro centro) {
 		return centroRepositorio.save(centro);
 	}

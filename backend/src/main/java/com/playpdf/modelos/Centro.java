@@ -34,6 +34,12 @@ public class Centro {
 	@Column(nullable = false)
 	private Double longitud;
 
+	@Column(name = "codigo_acceso", unique = true, length = 20)
+	private String codigoAcceso;
+
+	public String getCodigoAcceso() { return codigoAcceso; }
+	public void setCodigoAcceso(String codigoAcceso) { this.codigoAcceso = codigoAcceso; }
+
 	public Long getIdCentro() {
 		return this.idCentro;
 	}

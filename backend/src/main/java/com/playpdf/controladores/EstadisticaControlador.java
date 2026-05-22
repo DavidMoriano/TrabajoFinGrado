@@ -16,7 +16,6 @@ public class EstadisticaControlador {
 		this.estadisticaServicio = estadisticaServicio;
 	}
 
-	// GET /api/estadisticas/me
 	@GetMapping("/me")
 	public ResponseEntity<?> obtenerMisEstadisticas() {
 		try {
@@ -26,13 +25,14 @@ public class EstadisticaControlador {
 		}
 	}
 
-	// POST /api/estadisticas — registrar resultado de una partida completa
 	@PostMapping
 	public ResponseEntity<?> registrarPartida(@RequestBody Map<String, Object> datos) {
 		try {
 			Long idAsignatura = Long.valueOf(datos.get("id_asignatura").toString());
 			int aciertos = datos.containsKey("aciertos") ? Integer.parseInt(datos.get("aciertos").toString()) : 0;
-			int totalPreguntas = datos.containsKey("total_preguntas") ? Integer.parseInt(datos.get("total_preguntas").toString()) : 0;
+			int totalPreguntas = datos.containsKey("total_preguntas")
+					? Integer.parseInt(datos.get("total_preguntas").toString())
+					: 0;
 			estadisticaServicio.registrarPartida(idAsignatura, aciertos, totalPreguntas);
 			return ResponseEntity.ok(Map.of("message", "Partida registrada"));
 		} catch (Exception e) {
@@ -40,7 +40,6 @@ public class EstadisticaControlador {
 		}
 	}
 
-	// GET /api/estadisticas/globales (solo admin)
 	@GetMapping("/globales")
 	public ResponseEntity<?> obtenerEstadisticasGlobales() {
 		return ResponseEntity.ok(estadisticaServicio.obtenerEstadisticasGlobales());

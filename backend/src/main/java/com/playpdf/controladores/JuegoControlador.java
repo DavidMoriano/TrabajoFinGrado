@@ -17,13 +17,11 @@ public class JuegoControlador {
 		this.juegoServicio = juegoServicio;
 	}
 
-	// GET /api/juegos
 	@GetMapping
 	public ResponseEntity<List<Map<String, Object>>> obtenerTiposJuego() {
 		return ResponseEntity.ok(juegoServicio.obtenerTiposJuego());
 	}
 
-	// GET /api/juegos/{idJuego}/preguntas?tema={idTema}
 	@GetMapping("/{idJuego}/preguntas")
 	public ResponseEntity<?> obtenerPreguntas(@PathVariable String idJuego, @RequestParam("tema") Long idTema) {
 		try {
@@ -33,7 +31,6 @@ public class JuegoControlador {
 		}
 	}
 
-	// POST /api/juegos/generar-preguntas — genera si no existen
 	@PostMapping("/generar-preguntas")
 	public ResponseEntity<?> generarPreguntas(@RequestBody Map<String, Object> datos) {
 		try {
@@ -45,7 +42,6 @@ public class JuegoControlador {
 		}
 	}
 
-	// DELETE /api/juegos/preguntas?tema={idTema} — borrar todas las preguntas de un tema
 	@DeleteMapping("/preguntas")
 	public ResponseEntity<?> borrarPreguntas(@RequestParam("tema") Long idTema) {
 		try {
@@ -56,7 +52,6 @@ public class JuegoControlador {
 		}
 	}
 
-	// POST /api/juegos/regenerar-preguntas — borrar y regenerar
 	@PostMapping("/regenerar-preguntas")
 	public ResponseEntity<?> regenerarPreguntas(@RequestBody Map<String, Object> datos) {
 		try {

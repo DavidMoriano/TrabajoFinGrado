@@ -33,10 +33,24 @@ public class CentroControlador {
 		}
 	}
 
-	// POST /api/centros (solo administrador - controlado en SecurityConfig)
+	// GET /api/centros/codigo/{codigo}
+	@GetMapping("/codigo/{codigo}")
+	public ResponseEntity<?> obtenerPorCodigo(@PathVariable String codigo) {
+		try {
+			return ResponseEntity.ok(centroServicio.obtenerPorCodigo(codigo));
+		} catch (RuntimeException e) {
+			return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
+		}
+	}
+
+	// POST /api/centros (solo administrador)
 	@PostMapping
 	public ResponseEntity<?> crear(@RequestBody Centro centro) {
 		try {
+			// Normalizar código a mayúsculas
+			if (centro.getCodigoAcceso() != null) {
+				centro.setCodigoAcceso(centro.getCodigoAcceso().toUpperCase());
+			}
 			return ResponseEntity.ok(centroServicio.crear(centro));
 		} catch (RuntimeException e) {
 			return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));

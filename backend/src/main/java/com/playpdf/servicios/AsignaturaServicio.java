@@ -47,6 +47,14 @@ public class AsignaturaServicio {
 		return dto;
 	}
 
+	public List<AsignaturaDto> obtenerPorCentro(Long idCentro) {
+		return asignaturaRepositorio.findByCentroIdCentro(idCentro).stream().map(a -> {
+			AsignaturaDto dto = AsignaturaDto.desde(a);
+			dto.setCantidadTemas(temaRepositorio.findByAsignaturaIdAsignatura(a.getIdAsignatura()).size());
+			return dto;
+		}).collect(Collectors.toList());
+	}
+
 	public List<AsignaturaDto> obtenerPorProfesor(Long idProfesor) {
 		return asignaturaRepositorio.findByProfesorIdUsuario(idProfesor).stream().map(a -> {
 			AsignaturaDto dto = AsignaturaDto.desde(a);
@@ -60,15 +68,17 @@ public class AsignaturaServicio {
 		Usuario profesor = usuarioRepositorio.findByEmail(email)
 				.orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+		if (datos.getIdCentro() == null) {
+			throw new RuntimeException("Debes seleccionar un centro para crear la asignatura");
+		}
+		Centro centro = centroRepositorio.findById(datos.getIdCentro())
+				.orElseThrow(() -> new RuntimeException("Centro no encontrado"));
+
 		Asignatura asignatura = new Asignatura();
 		asignatura.setNombre(datos.getNombre());
 		asignatura.setDescripcion(datos.getDescripcion());
 		asignatura.setProfesor(profesor);
-
-		if (datos.getIdCentro() != null) {
-			Centro centro = centroRepositorio.findById(datos.getIdCentro()).orElse(null);
-			asignatura.setCentro(centro);
-		}
+		asignatura.setCentro(centro);
 
 		return AsignaturaDto.desde(asignaturaRepositorio.save(asignatura));
 	}

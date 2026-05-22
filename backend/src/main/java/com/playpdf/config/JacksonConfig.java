@@ -13,8 +13,6 @@ public class JacksonConfig {
     @Primary
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
-        // Serializa camelCase como snake_case para que el frontend reciba
-        // id_asignatura, id_tema, nombre_archivo_pdf, etc.
         mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         return mapper;
     }

@@ -20,7 +20,8 @@ CREATE TABLE centro (
     direccion VARCHAR(200),
     ciudad VARCHAR(100),
     latitud DECIMAL(9,6),
-    longitud DECIMAL(9,6)
+    longitud DECIMAL(9,6),
+    codigo_acceso VARCHAR(20) UNIQUE
 );
 
 CREATE TABLE asignatura (

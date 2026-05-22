@@ -43,20 +43,14 @@ public class EstadisticaServicio {
 		List<Map<String, Object>> porAsignatura = new ArrayList<>();
 		for (Estadistica e : lista) {
 			if (e.getAsignatura() != null) {
-				porAsignatura.add(Map.of(
-						"nombreAsignatura", e.getAsignatura().getNombre(),
-						"totalPartidas", e.getTotalPartidas(),
-						"totalAciertos", e.getTotalAciertos(),
-						"totalPreguntas", e.getTotalPreguntas()));
+				porAsignatura.add(
+						Map.of("nombreAsignatura", e.getAsignatura().getNombre(), "totalPartidas", e.getTotalPartidas(),
+								"totalAciertos", e.getTotalAciertos(), "totalPreguntas", e.getTotalPreguntas()));
 			}
 		}
 
-		return Map.of(
-				"totalPartidas", totalPartidas,
-				"totalAciertos", totalAciertos,
-				"totalPreguntas", totalPreguntas,
-				"rachaActual", rachaActual,
-				"porAsignatura", porAsignatura);
+		return Map.of("totalPartidas", totalPartidas, "totalAciertos", totalAciertos, "totalPreguntas", totalPreguntas,
+				"rachaActual", rachaActual, "porAsignatura", porAsignatura);
 	}
 
 	public void registrarPartida(Long idAsignatura, int aciertos, int totalPreguntas) {
@@ -85,7 +79,6 @@ public class EstadisticaServicio {
 		estadistica.setTotalAciertos(estadistica.getTotalAciertos() + aciertos);
 		estadistica.setTotalPreguntas(estadistica.getTotalPreguntas() + totalPreguntas);
 
-		// Racha: si acertó todo en esta partida, incrementar; si no, resetear
 		if (totalPreguntas > 0 && aciertos == totalPreguntas) {
 			estadistica.setRachaActual(estadistica.getRachaActual() + 1);
 		} else {
@@ -100,9 +93,7 @@ public class EstadisticaServicio {
 		Long totalAciertos = estadisticaRepositorio.contarTotalAciertosGlobal();
 		long totalUsuarios = usuarioRepositorio.count();
 
-		return Map.of(
-				"totalPartidasGlobal", totalPartidas != null ? totalPartidas : 0,
-				"totalAciertosGlobal", totalAciertos != null ? totalAciertos : 0,
-				"totalUsuarios", totalUsuarios);
+		return Map.of("totalPartidasGlobal", totalPartidas != null ? totalPartidas : 0, "totalAciertosGlobal",
+				totalAciertos != null ? totalAciertos : 0, "totalUsuarios", totalUsuarios);
 	}
 }

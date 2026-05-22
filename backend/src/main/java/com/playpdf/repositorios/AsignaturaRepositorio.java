@@ -12,6 +12,8 @@ public interface AsignaturaRepositorio extends JpaRepository<Asignatura, Long> {
 
 	List<Asignatura> findByProfesorIdUsuario(Long idProfesor);
 
+	List<Asignatura> findByCentroIdCentro(Long idCentro);
+
 	@Query("SELECT a FROM Asignatura a LEFT JOIN FETCH a.profesor LEFT JOIN FETCH a.centro")
 	List<Asignatura> findAllConDetalle();
 }

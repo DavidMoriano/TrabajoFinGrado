@@ -33,6 +33,11 @@ public class AsignaturaControlador {
 		}
 	}
 
+	@GetMapping("/centro/{idCentro}")
+	public ResponseEntity<List<AsignaturaDto>> obtenerPorCentro(@PathVariable Long idCentro) {
+		return ResponseEntity.ok(asignaturaServicio.obtenerPorCentro(idCentro));
+	}
+
 	@GetMapping("/profesor/{idProfesor}")
 	public ResponseEntity<List<AsignaturaDto>> obtenerPorProfesor(@PathVariable Long idProfesor) {
 		return ResponseEntity.ok(asignaturaServicio.obtenerPorProfesor(idProfesor));

@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CentroRepositorio extends JpaRepository<Centro, Long> {
+    java.util.Optional<Centro> findByCodigoAcceso(String codigoAcceso);
 }
