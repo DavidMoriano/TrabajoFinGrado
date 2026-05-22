@@ -1,17 +1,35 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { servicioCentros, servicioAsignaturas, servicioUsuarios } from "@/servicios/api";
 
 const enrutador = useRouter();
 
 const tarjetasEstadisticas = ref([
-  { descripcion: "Centros", valor: "0", icono: "🏫", nombreRuta: "GestionCentros" },
-  { descripcion: "Asignaturas", valor: "0", icono: "📚", nombreRuta: "GestionAsignaturas" },
-  { descripcion: "Profesores", valor: "0", icono: "👨‍🏫", nombreRuta: "ListaProfesores" },
-  { descripcion: "Alumnos", valor: "0", icono: "🎓", nombreRuta: "ListaAlumnos" }
+  { descripcion: "Centros", valor: "—", icono: "🏫", nombreRuta: "GestionCentros" },
+  { descripcion: "Asignaturas", valor: "—", icono: "📚", nombreRuta: "GestionAsignaturas" },
+  { descripcion: "Profesores", valor: "—", icono: "👨‍🏫", nombreRuta: "ListaProfesores" },
+  { descripcion: "Alumnos", valor: "—", icono: "🎓", nombreRuta: "ListaAlumnos" },
 ]);
 
 const actividadReciente = ref([]);
+
+onMounted(async () => {
+  try {
+    const [resCentros, resAsig, resProfesores, resAlumnos] = await Promise.all([
+      servicioCentros.obtenerTodos(),
+      servicioAsignaturas.obtenerTodas(),
+      servicioUsuarios.obtenerProfesores(),
+      servicioUsuarios.obtenerAlumnos(),
+    ]);
+    tarjetasEstadisticas.value[0].valor = resCentros.data.length;
+    tarjetasEstadisticas.value[1].valor = resAsig.data.length;
+    tarjetasEstadisticas.value[2].valor = resProfesores.data.length;
+    tarjetasEstadisticas.value[3].valor = resAlumnos.data.length;
+  } catch {
+    tarjetasEstadisticas.value.forEach(t => { if (t.valor === "—") t.valor = "?"; });
+  }
+});
 </script>
 
 <template>

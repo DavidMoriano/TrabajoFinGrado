@@ -66,12 +66,8 @@ onMounted(async () => {
           </div>
           <div class="d-flex gap-2 mt-3">
             <button class="btn btn-primary btn-sm"
-              @click="enrutador.push({ name: 'SubirTemario', params: { identificadorAsignatura: asignatura.id_asignatura } })">
-              📄 Subir temario
-            </button>
-            <button class="btn btn-outline-secondary btn-sm"
-              @click="enrutador.push({ name: 'MisAsignaturas' })">
-              ✏️ Editar
+              @click="enrutador.push({ name: 'MisCentros' })">
+              🏫 Mis centros
             </button>
           </div>
         </div>

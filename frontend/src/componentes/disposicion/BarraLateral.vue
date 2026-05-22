@@ -20,7 +20,7 @@ const enlacesAdministrador = [
 
 const enlacesProfesor = [
   { nombreRuta: 'PanelProfesor', etiqueta: 'Panel principal', icono: '◈' },
-  { nombreRuta: 'MisAsignaturas', etiqueta: 'Mis asignaturas', icono: '📘' },
+  { nombreRuta: 'MisCentros', etiqueta: 'Mis centros', icono: '🏫' },
   { nombreRuta: 'VerCentros', etiqueta: 'Ver centros', icono: '🌐' }
 ]
 

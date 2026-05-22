@@ -49,6 +49,9 @@ export const servicioCentros = {
   obtenerPorId(identificador) {
     return clienteHttp.get(`/centros/${identificador}`);
   },
+  obtenerPorCodigo(codigo) {
+    return clienteHttp.get(`/centros/codigo/${codigo}`);
+  },
   crear(datosCentro) {
     return clienteHttp.post("/centros", datosCentro);
   },
@@ -66,6 +69,9 @@ export const servicioAsignaturas = {
   },
   obtenerPorProfesor(identificadorProfesor) {
     return clienteHttp.get(`/asignaturas/profesor/${identificadorProfesor}`);
+  },
+  obtenerPorCentro(identificadorCentro) {
+    return clienteHttp.get(`/asignaturas/centro/${identificadorCentro}`);
   },
   crear(datosAsignatura) {
     return clienteHttp.post("/asignaturas", datosAsignatura);

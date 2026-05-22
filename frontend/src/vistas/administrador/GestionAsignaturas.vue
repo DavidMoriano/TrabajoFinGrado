@@ -121,7 +121,7 @@ async function eliminarAsignatura(identificador) {
           <div class="acciones-modal">
             <button type="button" class="boton boton-secundario" @click="mostrarVentanaModal = false">Cancelar</button>
             <button type="submit" class="boton boton-principal">{{ identificadorEdicion ? 'Guardar cambios' : 'Crear'
-            }}</button>
+              }}</button>
           </div>
         </form>
       </div>

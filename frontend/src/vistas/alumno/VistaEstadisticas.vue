@@ -19,16 +19,16 @@ onMounted(async () => {
     const resp = await servicioEstadisticas.obtenerMisEstadisticas();
     const d = resp.data;
     resumen.value = {
-      totalPartidas:  d.total_partidas  ?? d.totalPartidas  ?? 0,
-      totalAciertos:  d.total_aciertos  ?? d.totalAciertos  ?? 0,
+      totalPartidas: d.total_partidas ?? d.totalPartidas ?? 0,
+      totalAciertos: d.total_aciertos ?? d.totalAciertos ?? 0,
       totalPreguntas: d.total_preguntas ?? d.totalPreguntas ?? 0,
-      rachaActual:    d.racha_actual    ?? d.rachaActual    ?? 0,
+      rachaActual: d.racha_actual ?? d.rachaActual ?? 0,
     };
     porAsignatura.value = (d.por_asignatura ?? d.porAsignatura ?? []).map(a => ({
-      nombre:         a.nombre_asignatura ?? a.nombreAsignatura ?? "—",
-      partidas:       a.total_partidas    ?? a.totalPartidas    ?? 0,
-      aciertos:       a.total_aciertos    ?? a.totalAciertos    ?? 0,
-      totalPreguntas: a.total_preguntas   ?? a.totalPreguntas   ?? 0,
+      nombre: a.nombre_asignatura ?? a.nombreAsignatura ?? "—",
+      partidas: a.total_partidas ?? a.totalPartidas ?? 0,
+      aciertos: a.total_aciertos ?? a.totalAciertos ?? 0,
+      totalPreguntas: a.total_preguntas ?? a.totalPreguntas ?? 0,
       porcentaje: (a.total_preguntas ?? a.totalPreguntas ?? 0) > 0
         ? Math.round(((a.total_aciertos ?? a.totalAciertos ?? 0) / (a.total_preguntas ?? a.totalPreguntas ?? 0)) * 100)
         : 0,
@@ -108,7 +108,8 @@ onMounted(async () => {
               <span class="fw-semibold small">{{ a.nombre }}</span>
               <div class="d-flex gap-2 align-items-center">
                 <span class="badge-aciertos">{{ a.aciertos }}/{{ a.totalPreguntas }} aciertos</span>
-                <span class="badge-porcentaje" :class="a.porcentaje >= 70 ? 'badge-verde' : a.porcentaje >= 40 ? 'badge-amarillo' : 'badge-rojo'">
+                <span class="badge-porcentaje"
+                  :class="a.porcentaje >= 70 ? 'badge-verde' : a.porcentaje >= 40 ? 'badge-amarillo' : 'badge-rojo'">
                   {{ a.porcentaje }}%
                 </span>
               </div>
@@ -127,8 +128,13 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.icono-estadistica { font-size: 1.4rem; }
-.titulo-seccion { font-size: 1rem; }
+.icono-estadistica {
+  font-size: 1.4rem;
+}
+
+.titulo-seccion {
+  font-size: 1rem;
+}
 
 .barra-fondo {
   height: 10px;
@@ -144,9 +150,17 @@ onMounted(async () => {
   transition: width 0.6s ease;
 }
 
-.barra-verde    { background: var(--color-exito); }
-.barra-amarillo { background: #f59e0b; }
-.barra-rojo     { background: var(--color-error); }
+.barra-verde {
+  background: var(--color-exito);
+}
+
+.barra-amarillo {
+  background: #f59e0b;
+}
+
+.barra-rojo {
+  background: var(--color-error);
+}
 
 .badge-aciertos {
   font-size: 0.72rem;
@@ -160,9 +174,20 @@ onMounted(async () => {
   border-radius: 20px;
 }
 
-.badge-verde    { background: var(--color-exito-claro);  color: var(--color-exito); }
-.badge-amarillo { background: #fef3c7; color: #92400e; }
-.badge-rojo     { background: var(--color-error-claro);  color: var(--color-error); }
+.badge-verde {
+  background: var(--color-exito-claro);
+  color: var(--color-exito);
+}
+
+.badge-amarillo {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-rojo {
+  background: var(--color-error-claro);
+  color: var(--color-error);
+}
 
 .texto-detalle {
   font-size: 0.73rem;

@@ -12,7 +12,8 @@ import ListaProfesores from "@/vistas/administrador/ListaProfesores.vue";
 import ListaAlumnos from "@/vistas/administrador/ListaAlumnos.vue";
 
 import PanelProfesor from "@/vistas/profesor/PanelProfesor.vue";
-import MisAsignaturas from "@/vistas/profesor/MisAsignaturas.vue";
+import MisCentros from "@/vistas/profesor/MisCentros.vue";
+import AsignaturasDeCentro from "@/vistas/profesor/AsignaturasDeCentro.vue";
 import SubirTemario from "@/vistas/profesor/SubirTemario.vue";
 
 import PanelAlumno from "@/vistas/alumno/PanelAlumno.vue";
@@ -81,10 +82,20 @@ const rutas = [
     meta: { requiereAutenticacion: true, rolRequerido: "PROFESOR" },
   },
   {
-    path: "/profesor/asignaturas",
-    name: "MisAsignaturas",
-    component: MisAsignaturas,
+    path: "/profesor/centros",
+    name: "MisCentros",
+    component: MisCentros,
     meta: { requiereAutenticacion: true, rolRequerido: "PROFESOR" },
+  },
+  {
+    path: "/profesor/centros/:identificadorCentro/asignaturas",
+    name: "AsignaturasDeCentro",
+    component: AsignaturasDeCentro,
+    meta: { requiereAutenticacion: true, rolRequerido: "PROFESOR" },
+  },
+  {
+    path: "/profesor/asignaturas",
+    redirect: "/profesor/centros",
   },
   {
     path: "/profesor/temario/:identificadorAsignatura",
