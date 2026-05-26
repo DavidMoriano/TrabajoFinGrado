@@ -6,10 +6,10 @@ import { servicioCentros, servicioAsignaturas, servicioUsuarios } from "@/servic
 const enrutador = useRouter();
 
 const tarjetasEstadisticas = ref([
-  { descripcion: "Centros", valor: "—", icono: "🏫", nombreRuta: "GestionCentros" },
-  { descripcion: "Asignaturas", valor: "—", icono: "📚", nombreRuta: "GestionAsignaturas" },
-  { descripcion: "Profesores", valor: "—", icono: "👨‍🏫", nombreRuta: "ListaProfesores" },
-  { descripcion: "Alumnos", valor: "—", icono: "🎓", nombreRuta: "ListaAlumnos" },
+  { descripcion: "Centros",      valor: "—", icono: "🏫", nombreRuta: "GestionCentros" },
+  { descripcion: "Asignaturas",  valor: "—", icono: "📚", nombreRuta: "GestionAsignaturas" },
+  { descripcion: "Profesores",   valor: "—", icono: "👨‍🏫", nombreRuta: "ListaProfesores" },
+  { descripcion: "Alumnos",      valor: "—", icono: "🎓", nombreRuta: "ListaAlumnos" },
 ]);
 
 const actividadReciente = ref([]);

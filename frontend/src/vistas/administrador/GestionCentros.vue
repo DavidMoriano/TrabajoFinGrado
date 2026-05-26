@@ -118,6 +118,7 @@ async function eliminarCentro(identificador) {
       </table>
     </div>
 
+    <!-- Modal crear centro -->
     <div v-if="mostrarVentanaModal" class="superposicion-modal" @click.self="mostrarVentanaModal = false">
       <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">
@@ -149,7 +150,9 @@ async function eliminarCentro(identificador) {
           </div>
           <div class="grupo-campo">
             <label class="etiqueta-campo">Código de acceso</label>
-            <input v-model="datosFormularioCentro.codigoAcceso" required placeholder="Ej: IES2024" maxlength="20"
+            <input v-model="datosFormularioCentro.codigoAcceso" required
+              placeholder="Ej: IES2024"
+              maxlength="20"
               style="text-transform:uppercase;letter-spacing:0.08em;font-weight:700" />
             <p class="texto-ayuda-campo">Código único que usarán profesores y alumnos para unirse al centro</p>
           </div>
@@ -176,14 +179,12 @@ async function eliminarCentro(identificador) {
   border-radius: 6px;
   border: 1px solid var(--color-acento);
 }
-
 .texto-ayuda-campo {
   font-size: 0.75rem;
   color: var(--color-texto-terciario);
   margin-top: 4px;
   margin-bottom: 0;
 }
-
 .alerta-error {
   background: var(--color-error-claro);
   color: var(--color-error);

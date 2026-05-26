@@ -14,6 +14,7 @@ const datosFormularioTema = ref({ titulo: "", descripcion: "", archivoSelecciona
 const nombreArchivoSeleccionado = ref("");
 const estaSobreZonaArrastre = ref(false);
 
+// Estado de regeneración por tema { [idTema]: 'idle' | 'cargando' | 'ok' | 'error' }
 const estadoRegeneracion = ref({});
 
 onMounted(async () => {
@@ -64,7 +65,8 @@ async function agregarTema() {
 async function eliminarTema(identificador) {
   if (confirm("¿Eliminar este tema? También se borrarán sus preguntas generadas.")) {
     try {
-      await servicioJuegos.borrarPreguntas(identificador).catch(() => { });
+      // Primero borrar preguntas, luego el tema
+      await servicioJuegos.borrarPreguntas(identificador).catch(() => {});
       await servicioTemas.eliminar(identificador);
       listaTemas.value = listaTemas.value.filter(t => t.id_tema !== identificador);
     } catch {
@@ -120,8 +122,10 @@ async function borrarPreguntas(idTema) {
     </div>
 
     <div v-else class="d-flex flex-column gap-3">
-      <div v-for="tema in listaTemas" :key="tema.id_tema" class="tarjeta animacion-aparecer-desde-abajo">
+      <div v-for="tema in listaTemas" :key="tema.id_tema"
+        class="tarjeta animacion-aparecer-desde-abajo">
 
+        <!-- Fila principal del tema -->
         <div class="d-flex align-items-center gap-3 flex-wrap">
           <div class="icono-tema-pdf">📕</div>
           <div class="flex-grow-1 min-w-0">
@@ -135,12 +139,17 @@ async function borrarPreguntas(idTema) {
           </div>
         </div>
 
+        <!-- Fila de acciones de preguntas IA -->
         <div class="barra-ia mt-3 pt-3">
           <span class="etiqueta-ia">🤖 Preguntas IA</span>
           <div class="acciones-ia">
 
-            <button class="btn btn-sm btn-outline-primary" :disabled="estadoRegeneracion[tema.id_tema] === 'cargando'"
-              @click="regenerarPreguntas(tema.id_tema)">
+            <!-- Regenerar tests -->
+            <button
+              class="btn btn-sm btn-outline-primary"
+              :disabled="estadoRegeneracion[tema.id_tema] === 'cargando'"
+              @click="regenerarPreguntas(tema.id_tema)"
+            >
               <span v-if="estadoRegeneracion[tema.id_tema] === 'cargando'">
                 <span class="spinner-border spinner-border-sm me-1"></span>Generando...
               </span>
@@ -149,8 +158,12 @@ async function borrarPreguntas(idTema) {
               <span v-else>🔄 Regenerar preguntas</span>
             </button>
 
-            <button class="btn btn-sm btn-outline-danger" :disabled="estadoRegeneracion[tema.id_tema] === 'cargando'"
-              @click="borrarPreguntas(tema.id_tema)">
+            <!-- Borrar preguntas -->
+            <button
+              class="btn btn-sm btn-outline-danger"
+              :disabled="estadoRegeneracion[tema.id_tema] === 'cargando'"
+              @click="borrarPreguntas(tema.id_tema)"
+            >
               🗑️ Borrar preguntas
             </button>
           </div>
@@ -159,6 +172,7 @@ async function borrarPreguntas(idTema) {
       </div>
     </div>
 
+    <!-- Modal subir tema -->
     <div v-if="mostrarVentanaModal" class="superposicion-modal" @click.self="mostrarVentanaModal = false">
       <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">
@@ -197,8 +211,7 @@ async function borrarPreguntas(idTema) {
           </div>
           <div class="acciones-modal">
             <button type="button" class="boton boton-secundario" @click="mostrarVentanaModal = false">Cancelar</button>
-            <button type="submit" class="boton boton-principal" :disabled="!nombreArchivoSeleccionado">Subir
-              tema</button>
+            <button type="submit" class="boton boton-principal" :disabled="!nombreArchivoSeleccionado">Subir tema</button>
           </div>
         </form>
       </div>

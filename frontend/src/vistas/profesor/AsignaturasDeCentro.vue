@@ -26,6 +26,7 @@ onMounted(async () => {
       servicioAsignaturas.obtenerPorCentro(identificadorCentro),
     ])
     centro.value = resCentro.data
+    // Solo mostrar las asignaturas del profesor actual
     const idProfesor = almacenAutenticacion.usuarioActual?.id_usuario
     listaAsignaturas.value = resAsig.data.filter(a => a.id_profesor === idProfesor)
   } catch {
@@ -156,8 +157,7 @@ async function confirmarEliminar() {
           <div v-if="errorFormulario" class="alerta-error">{{ errorFormulario }}</div>
           <div class="acciones-modal">
             <button type="button" class="boton boton-secundario" @click="mostrarVentanaModal = false">Cancelar</button>
-            <button type="submit" class="boton boton-principal">{{ identificadorEdicion ? 'Guardar' : 'Crear'
-              }}</button>
+            <button type="submit" class="boton boton-principal">{{ identificadorEdicion ? 'Guardar' : 'Crear' }}</button>
           </div>
         </form>
       </div>
@@ -169,12 +169,10 @@ async function confirmarEliminar() {
         <div class="cabecera-modal">
           <h2 class="titulo-modal">Eliminar asignatura</h2>
         </div>
-        <p class="mb-4 text-secondary">¿Seguro que quieres eliminar esta asignatura? Se eliminarán también sus temas y
-          preguntas.</p>
+        <p class="mb-4 text-secondary">¿Seguro que quieres eliminar esta asignatura? Se eliminarán también sus temas y preguntas.</p>
         <div class="acciones-modal">
           <button class="boton boton-secundario" @click="mostrarModalConfirmacion = false">Cancelar</button>
-          <button class="boton boton-principal" style="background:var(--color-error);border-color:var(--color-error)"
-            @click="confirmarEliminar">Eliminar</button>
+          <button class="boton boton-principal" style="background:var(--color-error);border-color:var(--color-error)" @click="confirmarEliminar">Eliminar</button>
         </div>
       </div>
     </div>
