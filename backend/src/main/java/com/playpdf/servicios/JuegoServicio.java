@@ -64,17 +64,23 @@ public class JuegoServicio {
 		for (Pregunta p : preguntas) {
 			List<Map<String, Object>> respuestas = new ArrayList<>();
 			for (Respuesta r : p.getRespuestas()) {
-				respuestas.add(Map.of("id_respuesta", r.getIdRespuesta(), "texto", r.getTexto(), "esCorrecta",
-						r.getEsCorrecta()));
+				respuestas.add(Map.of(
+						"id_respuesta", r.getIdRespuesta(),
+						"texto", r.getTexto(),
+						"esCorrecta", r.getEsCorrecta()));
 			}
-			resultado.add(Map.of("id_pregunta", p.getIdPregunta(), "enunciado", p.getEnunciado(), "tipo",
-					p.getTipo().name(), "respuestas", respuestas));
+			resultado.add(Map.of(
+					"id_pregunta", p.getIdPregunta(),
+					"enunciado", p.getEnunciado(),
+					"tipo", p.getTipo().name(),
+					"respuestas", respuestas));
 		}
 		return resultado;
 	}
 
 	@Transactional
 	public void borrarPreguntas(Long idTema) {
+		// Hay que borrar las respuestas primero para no violar la FK
 		respuestaRepositorio.deleteByTemaIdTema(idTema);
 		preguntaRepositorio.deleteByIdTema(idTema);
 	}
@@ -86,15 +92,15 @@ public class JuegoServicio {
 
 		String textoPdf = leerTextoPdf(idTema);
 
-		
+		// Generar preguntas de quiz si no existen
 		List<Pregunta> quizExistentes = preguntaRepositorio.findByTemaIdTemaAndTipo(idTema, Pregunta.TipoPregunta.quiz);
 		if (quizExistentes.isEmpty()) {
 			String jsonQuiz = llamarApiIA(textoPdf, tema.getTitulo(), "quiz");
 			guardarPreguntasDesdeJson(jsonQuiz, tema, Pregunta.TipoPregunta.quiz);
 		}
 
-		List<Pregunta> puzzleExistentes = preguntaRepositorio.findByTemaIdTemaAndTipo(idTema,
-				Pregunta.TipoPregunta.puzzle);
+		// Generar preguntas de puzzle si no existen
+		List<Pregunta> puzzleExistentes = preguntaRepositorio.findByTemaIdTemaAndTipo(idTema, Pregunta.TipoPregunta.puzzle);
 		if (puzzleExistentes.isEmpty()) {
 			String jsonPuzzle = llamarApiIA(textoPdf, tema.getTitulo(), "puzzle");
 			guardarPreguntasDesdeJson(jsonPuzzle, tema, Pregunta.TipoPregunta.puzzle);
@@ -104,7 +110,8 @@ public class JuegoServicio {
 	private String leerTextoPdf(Long idTema) {
 		try {
 			Path ruta = temaServicio.obtenerRutaPdf(idTema);
-			try (org.apache.pdfbox.pdmodel.PDDocument documento = org.apache.pdfbox.Loader.loadPDF(ruta.toFile())) {
+			try (org.apache.pdfbox.pdmodel.PDDocument documento =
+					org.apache.pdfbox.Loader.loadPDF(ruta.toFile())) {
 				org.apache.pdfbox.text.PDFTextStripper extractor = new org.apache.pdfbox.text.PDFTextStripper();
 				String texto = extractor.getText(documento);
 				texto = texto.replaceAll("\\s+", " ").trim();
@@ -133,12 +140,12 @@ public class JuegoServicio {
 					Responde ÚNICAMENTE con un array JSON, sin texto adicional, sin markdown, sin bloques de código.
 					Formato exacto:
 					[{"enunciado":"¿Pregunta?","respuestas":[{"texto":"Opción A","esCorrecta":true},{"texto":"Opción B","esCorrecta":false},{"texto":"Opción C","esCorrecta":false},{"texto":"Opción D","esCorrecta":false}]}]
-
+					
 					Texto del tema:
 					%s
-					"""
-					.formatted(tituloTema, textoPdf);
+					""".formatted(tituloTema, textoPdf);
 		} else {
+			// puzzle: frase con una palabra clave oculta como _____
 			prompt = """
 					Eres un generador de ejercicios educativos de completar frases.
 					Basándote en el siguiente texto del tema "%s", genera exactamente 5 frases incompletas.
@@ -147,29 +154,34 @@ public class JuegoServicio {
 					Responde ÚNICAMENTE con un array JSON, sin texto adicional, sin markdown, sin bloques de código.
 					Formato exacto:
 					[{"frase":"La _____ es el proceso por el que las plantas producen energía.","respuesta":"fotosíntesis"}]
-
+					
 					Texto del tema:
 					%s
-					"""
-					.formatted(tituloTema, textoPdf);
+					""".formatted(tituloTema, textoPdf);
 		}
 
-		String cuerpo = objectMapper.writeValueAsString(Map.of("model", modelo, "max_tokens", 2000, "temperature", 0.7,
-				"messages",
-				List.of(Map.of("role", "system", "content",
-						"Eres un asistente educativo. Responde SIEMPRE con JSON puro, sin markdown ni texto adicional."),
+		String cuerpo = objectMapper.writeValueAsString(Map.of(
+				"model", modelo,
+				"max_tokens", 2000,
+				"temperature", 0.7,
+				"messages", List.of(
+						Map.of("role", "system", "content",
+								"Eres un asistente educativo. Responde SIEMPRE con JSON puro, sin markdown ni texto adicional."),
 						Map.of("role", "user", "content", prompt))));
 
 		HttpClient cliente = HttpClient.newHttpClient();
-		HttpRequest peticion = HttpRequest.newBuilder().uri(URI.create(iaUrl))
-				.header("Content-Type", "application/json").header("Authorization", "Bearer " + apiKey)
-				.POST(HttpRequest.BodyPublishers.ofString(cuerpo)).build();
+		HttpRequest peticion = HttpRequest.newBuilder()
+				.uri(URI.create(iaUrl))
+				.header("Content-Type", "application/json")
+				.header("Authorization", "Bearer " + apiKey)
+				.POST(HttpRequest.BodyPublishers.ofString(cuerpo))
+				.build();
 
 		HttpResponse<String> respuesta = cliente.send(peticion, HttpResponse.BodyHandlers.ofString());
 
 		if (respuesta.statusCode() != 200) {
-			throw new RuntimeException(
-					"Error en la API de IA. Código: " + respuesta.statusCode() + ". Respuesta: " + respuesta.body());
+			throw new RuntimeException("Error en la API de IA. Código: " + respuesta.statusCode()
+					+ ". Respuesta: " + respuesta.body());
 		}
 
 		JsonNode raiz = objectMapper.readTree(respuesta.body());
@@ -211,6 +223,7 @@ public class JuegoServicio {
 				}
 
 			} else {
+				// puzzle: frase con _____ como enunciado, respuesta correcta = la palabra
 				pregunta.setEnunciado(nodo.get("frase").asText());
 				preguntaRepositorio.save(pregunta);
 

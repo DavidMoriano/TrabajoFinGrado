@@ -17,16 +17,19 @@ public class UsuarioControlador {
 		this.usuarioServicio = usuarioServicio;
 	}
 
+	// GET /api/usuarios/profesores
 	@GetMapping("/profesores")
 	public ResponseEntity<List<UsuarioDto>> obtenerProfesores() {
 		return ResponseEntity.ok(usuarioServicio.obtenerProfesores());
 	}
 
+	// GET /api/usuarios/alumnos
 	@GetMapping("/alumnos")
 	public ResponseEntity<List<UsuarioDto>> obtenerAlumnos() {
 		return ResponseEntity.ok(usuarioServicio.obtenerAlumnos());
 	}
 
+	// GET /api/usuarios/{id}
 	@GetMapping("/{id}")
 	public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
 		try {

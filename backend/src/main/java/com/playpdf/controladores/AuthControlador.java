@@ -17,6 +17,7 @@ public class AuthControlador {
 		this.authServicio = authServicio;
 	}
 
+	// POST /api/auth/login
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 		try {
@@ -27,6 +28,7 @@ public class AuthControlador {
 		}
 	}
 
+	// POST /api/auth/register
 	@PostMapping("/register")
 	public ResponseEntity<?> registro(@RequestBody RegistroRequest request) {
 		try {
