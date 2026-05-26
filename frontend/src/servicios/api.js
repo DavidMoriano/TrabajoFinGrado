@@ -2,15 +2,16 @@ import axios from "axios";
 
 const clienteHttp = axios.create({
   baseURL: "/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 clienteHttp.interceptors.request.use((configuracion) => {
   const tokenSesion = localStorage.getItem("playpdf-token");
   if (tokenSesion) {
     configuracion.headers.Authorization = `Bearer ${tokenSesion}`;
+  }
+  // Solo poner application/json si no es FormData (multipart)
+  if (!(configuracion.data instanceof FormData)) {
+    configuracion.headers["Content-Type"] = "application/json";
   }
   return configuracion;
 });
@@ -21,6 +22,9 @@ clienteHttp.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem("playpdf-token");
       localStorage.removeItem("playpdf-usuario");
+      Object.keys(localStorage)
+        .filter(clave => clave.startsWith("playpdf-mis-centros-"))
+        .forEach(clave => localStorage.removeItem(clave));
       window.location.href = "/inicio-sesion";
     }
     return Promise.reject(error);
@@ -37,8 +41,13 @@ export const servicioAutenticacion = {
     return clienteHttp.post("/auth/register", datosUsuario);
   },
   cerrarSesion() {
+    // Borrar token y usuario
     localStorage.removeItem("playpdf-token");
     localStorage.removeItem("playpdf-usuario");
+    // Borrar los centros cacheados de todos los usuarios
+    Object.keys(localStorage)
+      .filter(clave => clave.startsWith("playpdf-mis-centros-"))
+      .forEach(clave => localStorage.removeItem(clave));
   },
 };
 
@@ -92,14 +101,10 @@ export const servicioTemas = {
     return clienteHttp.get(`/temas/${identificador}`);
   },
   crear(datosFormulario) {
-    return clienteHttp.post("/temas", datosFormulario, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    return clienteHttp.post("/temas", datosFormulario);
   },
   actualizar(identificador, datosFormulario) {
-    return clienteHttp.put(`/temas/${identificador}`, datosFormulario, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    return clienteHttp.put(`/temas/${identificador}`, datosFormulario);
   },
   eliminar(identificador) {
     return clienteHttp.delete(`/temas/${identificador}`);

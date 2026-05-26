@@ -57,8 +57,8 @@ async function agregarTema() {
     mostrarVentanaModal.value = false;
     datosFormularioTema.value = { titulo: "", descripcion: "", archivoSeleccionado: null };
     nombreArchivoSeleccionado.value = "";
-  } catch {
-    alert("Error al subir el tema");
+  } catch (error) {
+    alert("Error al subir el tema: " + (error.response?.data?.message || error.response?.status || error.message));
   }
 }
 
