@@ -1,0 +1,59 @@
+services:
+
+  # ── Base de datos ──────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: playpdf-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: PracticaRoot
+      MYSQL_DATABASE: playpdf
+    volumes:
+      - playpdf-db-data:/var/lib/mysql
+    networks:
+      - playpdf-red
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pPracticaRoot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Backend Spring Boot ────────────────────────────────────
+  backend:
+    image: davidmoriano/playpdf-backend:latest
+    container_name: playpdf-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/playpdf?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: PracticaRoot
+      JWT_SECRET: playpdf_clave_secreta_muy_larga_y_segura
+      IA_API_KEY: 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
+      IA_MODELO: llama-3.3-70b-versatile
+      IA_URL: https://api.groq.com/openai/v1/chat/completions
+      FRONTEND_URL: http://localhost
+      ALMACENAMIENTO_DIRECTORIO_PDFS: /app/pdfs-subidos
+    volumes:
+      - playpdf-pdfs:/app/pdfs-subidos
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - playpdf-red
+
+  # ── Frontend Vue + Nginx ───────────────────────────────────
+  frontend:
+    image: davidmoriano/playpdf-frontend:latest
+    container_name: playpdf-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - playpdf-red
+
+networks:
+  playpdf-red:
+    driver: bridge
+
+volumes:
+  playpdf-db-data:
+  playpdf-pdfs:
