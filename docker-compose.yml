@@ -1,6 +1,5 @@
 services:
 
-  # ── Base de datos ──────────────────────────────────────────
   mysql:
     image: mysql:8.0
     container_name: playpdf-mysql
@@ -17,7 +16,6 @@ services:
       timeout: 5s
       retries: 10
 
-  # ── Backend Spring Boot ────────────────────────────────────
   backend:
     image: davidmoriano/playpdf-backend:latest
     container_name: playpdf-backend
@@ -25,7 +23,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/playpdf?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: PracticaRoot
-      JWT_SECRET: playpdf_clave_secreta_muy_larga_y_segura
+      JWT_SECRET: prwsoL)*8)1?_dy<p[_l4^b+O!X1MSNF2Z1Av.>g8Tk
       IA_API_KEY: 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
       IA_MODELO: llama-3.3-70b-versatile
       IA_URL: https://api.groq.com/openai/v1/chat/completions
@@ -39,7 +37,6 @@ services:
     networks:
       - playpdf-red
 
-  # ── Frontend Vue + Nginx ───────────────────────────────────
   frontend:
     image: davidmoriano/playpdf-frontend:latest
     container_name: playpdf-frontend
