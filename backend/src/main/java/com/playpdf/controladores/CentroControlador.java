@@ -17,13 +17,11 @@ public class CentroControlador {
 		this.centroServicio = centroServicio;
 	}
 
-	// GET /api/centros
 	@GetMapping
 	public ResponseEntity<List<Centro>> obtenerTodos() {
 		return ResponseEntity.ok(centroServicio.obtenerTodos());
 	}
 
-	// GET /api/centros/{id}
 	@GetMapping("/{id}")
 	public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
 		try {
@@ -33,7 +31,6 @@ public class CentroControlador {
 		}
 	}
 
-	// GET /api/centros/codigo/{codigo}
 	@GetMapping("/codigo/{codigo}")
 	public ResponseEntity<?> obtenerPorCodigo(@PathVariable String codigo) {
 		try {
@@ -43,11 +40,9 @@ public class CentroControlador {
 		}
 	}
 
-	// POST /api/centros (solo administrador)
 	@PostMapping
 	public ResponseEntity<?> crear(@RequestBody Centro centro) {
 		try {
-			// Normalizar código a mayúsculas
 			if (centro.getCodigoAcceso() != null) {
 				centro.setCodigoAcceso(centro.getCodigoAcceso().toUpperCase());
 			}
@@ -57,7 +52,6 @@ public class CentroControlador {
 		}
 	}
 
-	// DELETE /api/centros/{id} (solo administrador)
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> eliminar(@PathVariable Long id) {
 		try {

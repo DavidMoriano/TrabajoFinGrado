@@ -16,7 +16,6 @@ public class EstadisticaControlador {
 		this.estadisticaServicio = estadisticaServicio;
 	}
 
-	// GET /api/estadisticas/me
 	@GetMapping("/me")
 	public ResponseEntity<?> obtenerMisEstadisticas() {
 		try {
@@ -26,7 +25,6 @@ public class EstadisticaControlador {
 		}
 	}
 
-	// POST /api/estadisticas — registrar resultado de una partida completa
 	@PostMapping
 	public ResponseEntity<?> registrarPartida(@RequestBody Map<String, Object> datos) {
 		try {
@@ -40,7 +38,6 @@ public class EstadisticaControlador {
 		}
 	}
 
-	// GET /api/estadisticas/globales (solo admin)
 	@GetMapping("/globales")
 	public ResponseEntity<?> obtenerEstadisticasGlobales() {
 		return ResponseEntity.ok(estadisticaServicio.obtenerEstadisticasGlobales());
