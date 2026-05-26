@@ -36,7 +36,7 @@ public class TemaControlador {
 	}
 
 	// POST /api/temas (multipart/form-data)
-	@PostMapping
+	@PostMapping(consumes = "multipart/form-data")
 	public ResponseEntity<?> crear(@RequestParam("titulo") String titulo,
 			@RequestParam(value = "descripcion", required = false) String descripcion,
 			@RequestParam("id_asignatura") Long idAsignatura, @RequestParam("archivo_pdf") MultipartFile archivoPdf) {
@@ -49,7 +49,7 @@ public class TemaControlador {
 	}
 
 	// PUT /api/temas/{id} (multipart/form-data)
-	@PutMapping("/{id}")
+	@PutMapping(value = "/{id}", consumes = "multipart/form-data")
 	public ResponseEntity<?> actualizar(@PathVariable Long id,
 			@RequestParam(value = "titulo", required = false) String titulo,
 			@RequestParam(value = "descripcion", required = false) String descripcion,

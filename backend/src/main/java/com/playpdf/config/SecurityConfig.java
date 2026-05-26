@@ -38,16 +38,25 @@ public class SecurityConfig {
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
+						// Rutas públicas
 						.requestMatchers("/api/auth/**").permitAll()
+						// Centros - solo ADMIN puede crear y eliminar
 						.requestMatchers(HttpMethod.GET, "/api/centros/**").authenticated()
 						.requestMatchers(HttpMethod.POST, "/api/centros/**").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.DELETE, "/api/centros/**").hasRole("ADMIN")
+						// Usuarios - solo ADMIN
 						.requestMatchers("/api/usuarios/**").hasRole("ADMIN")
+						// Estadísticas globales - solo ADMIN
 						.requestMatchers("/api/estadisticas/globales").hasRole("ADMIN")
+						// Asignaturas - cualquier autenticado
 						.requestMatchers("/api/asignaturas/**").authenticated()
+						// Temas - cualquier autenticado
 						.requestMatchers("/api/temas/**").authenticated()
+						// Juegos - cualquier autenticado
 						.requestMatchers("/api/juegos/**").authenticated()
+						// Estadísticas propias - cualquier autenticado
 						.requestMatchers("/api/estadisticas/**").authenticated()
+						// Resto
 						.anyRequest().authenticated())
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -57,8 +66,15 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of(frontendUrl));
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		config.setAllowedOrigins(List.of(
+				frontendUrl,
+				"http://localhost",
+				"http://localhost:5173",
+				"http://localhost:4173",
+				"http://127.0.0.1",
+				"http://127.0.0.1:5173"
+		));
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);
 
