@@ -85,7 +85,6 @@ public class EstadisticaServicio {
 		estadistica.setTotalAciertos(estadistica.getTotalAciertos() + aciertos);
 		estadistica.setTotalPreguntas(estadistica.getTotalPreguntas() + totalPreguntas);
 
-		// Racha: si acertó todo en esta partida, incrementar; si no, resetear
 		if (totalPreguntas > 0 && aciertos == totalPreguntas) {
 			estadistica.setRachaActual(estadistica.getRachaActual() + 1);
 		} else {

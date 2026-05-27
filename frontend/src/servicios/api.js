@@ -9,7 +9,7 @@ clienteHttp.interceptors.request.use((configuracion) => {
   if (tokenSesion) {
     configuracion.headers.Authorization = `Bearer ${tokenSesion}`;
   }
-  // Solo poner application/json si no es FormData (multipart)
+
   if (!(configuracion.data instanceof FormData)) {
     configuracion.headers["Content-Type"] = "application/json";
   }
@@ -41,10 +41,8 @@ export const servicioAutenticacion = {
     return clienteHttp.post("/auth/register", datosUsuario);
   },
   cerrarSesion() {
-    // Borrar token y usuario
     localStorage.removeItem("playpdf-token");
     localStorage.removeItem("playpdf-usuario");
-    // Borrar los centros cacheados de todos los usuarios
     Object.keys(localStorage)
       .filter(clave => clave.startsWith("playpdf-mis-centros-"))
       .forEach(clave => localStorage.removeItem(clave));

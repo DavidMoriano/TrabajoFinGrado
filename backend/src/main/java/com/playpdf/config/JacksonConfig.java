@@ -14,8 +14,6 @@ public class JacksonConfig {
     @Bean
     @Primary
     public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder) {
-        // Usar el builder de Spring para preservar todos los módulos automáticos
-        // (JavaTimeModule para LocalDateTime, etc.)
         ObjectMapper mapper = builder.build();
         mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         mapper.registerModule(new JavaTimeModule());

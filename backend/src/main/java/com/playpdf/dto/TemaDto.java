@@ -25,7 +25,6 @@ public class TemaDto {
 		this.idAsignatura = idAsignatura;
 	}
 
-	// Método estático que necesita el servicio
 	public static TemaDto desde(Tema t) {
 		String fecha = null;
 		if (t.getFechaSubida() != null) {

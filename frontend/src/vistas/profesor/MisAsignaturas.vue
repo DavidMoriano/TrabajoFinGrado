@@ -125,7 +125,6 @@ function cancelarEliminar() {
       </div>
     </div>
 
-    <!-- Modal crear / editar -->
     <div v-if="mostrarVentanaModal" class="superposicion-modal" @click.self="mostrarVentanaModal = false">
       <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">
@@ -154,7 +153,6 @@ function cancelarEliminar() {
       </div>
     </div>
 
-    <!-- Modal confirmación eliminar -->
     <div v-if="mostrarModalConfirmacion" class="superposicion-modal">
       <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">

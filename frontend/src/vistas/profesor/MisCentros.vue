@@ -93,7 +93,6 @@ function abandonarCentro(idCentro) {
       </div>
     </div>
 
-    <!-- Modal introducir código -->
     <div v-if="mostrarModalCodigo" class="superposicion-modal" @click.self="mostrarModalCodigo = false; errorCodigo = ''">
       <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">

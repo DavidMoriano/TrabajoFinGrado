@@ -26,7 +26,6 @@ onMounted(async () => {
       servicioAsignaturas.obtenerPorCentro(identificadorCentro),
     ])
     centro.value = resCentro.data
-    // Solo mostrar las asignaturas del profesor actual
     const idProfesor = almacenAutenticacion.usuarioActual?.id_usuario
     listaAsignaturas.value = resAsig.data.filter(a => a.id_profesor === idProfesor)
   } catch {
@@ -89,7 +88,6 @@ async function confirmarEliminar() {
 
 <template>
   <div class="container py-4">
-    <!-- Cabecera con volver -->
     <div class="mb-4">
       <button class="btn btn-link p-0 mb-2 text-secondary" @click="enrutador.push({ name: 'MisCentros' })">
         ← Volver a mis centros
@@ -138,7 +136,6 @@ async function confirmarEliminar() {
       </div>
     </div>
 
-    <!-- Modal crear / editar -->
     <div v-if="mostrarVentanaModal" class="superposicion-modal" @click.self="mostrarVentanaModal = false">
       <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">
@@ -163,7 +160,6 @@ async function confirmarEliminar() {
       </div>
     </div>
 
-    <!-- Modal confirmar eliminar -->
     <div v-if="mostrarModalConfirmacion" class="superposicion-modal">
       <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">

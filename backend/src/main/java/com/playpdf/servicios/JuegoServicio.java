@@ -80,7 +80,7 @@ public class JuegoServicio {
 
 	@Transactional
 	public void borrarPreguntas(Long idTema) {
-		// Hay que borrar las respuestas primero para no violar la FK
+		// Hay que borrar las respuestas primero para no romper la clave foránea
 		respuestaRepositorio.deleteByTemaIdTema(idTema);
 		preguntaRepositorio.deleteByIdTema(idTema);
 	}
@@ -145,7 +145,6 @@ public class JuegoServicio {
 					%s
 					""".formatted(tituloTema, textoPdf);
 		} else {
-			// puzzle: frase con una palabra clave oculta como _____
 			prompt = """
 					Eres un generador de ejercicios educativos de completar frases.
 					Basándote en el siguiente texto del tema "%s", genera exactamente 5 frases incompletas.
@@ -223,11 +222,9 @@ public class JuegoServicio {
 				}
 
 			} else {
-				// puzzle: frase con _____ como enunciado, respuesta correcta = la palabra
 				pregunta.setEnunciado(nodo.get("frase").asText());
 				preguntaRepositorio.save(pregunta);
 
-				// Una única respuesta marcada como correcta
 				Respuesta respuesta = new Respuesta();
 				respuesta.setTexto(nodo.get("respuesta").asText().toLowerCase().trim());
 				respuesta.setEsCorrecta(true);

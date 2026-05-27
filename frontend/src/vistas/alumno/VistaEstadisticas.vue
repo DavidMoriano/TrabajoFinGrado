@@ -58,7 +58,6 @@ onMounted(async () => {
     </div>
 
     <template v-else>
-      <!-- Tarjetas resumen -->
       <div class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
           <div class="tarjeta tarjeta-estadistica animacion-aparecer-desde-abajo h-100">
@@ -90,7 +89,6 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Sin datos -->
       <div v-if="noHayDatos" class="tarjeta animacion-aparecer-desde-abajo">
         <div class="estado-vacio py-5">
           <div class="estado-vacio-icono">📊</div>
@@ -99,7 +97,6 @@ onMounted(async () => {
         </div>
       </div>
 
-      <!-- Rendimiento por asignatura -->
       <div v-else class="tarjeta animacion-aparecer-desde-abajo">
         <h3 class="fw-bold mb-4 titulo-seccion">Rendimiento por asignatura</h3>
         <div class="d-flex flex-column gap-4">

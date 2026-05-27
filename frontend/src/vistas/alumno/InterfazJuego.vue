@@ -20,12 +20,10 @@ const preguntaRespondida = ref(false);
 const puntuacionTotal = ref(0);
 const juegoTerminado = ref(false);
 
-// Quiz
 const identificadorRespuestaSeleccionada = ref(null);
 
-// Puzzle
 const respuestaEscrita = ref("");
-const resultadoPuzzle = ref(null); // null | "correcta" | "incorrecta"
+const resultadoPuzzle = ref(null);
 
 const preguntaActual = computed(() => listaPreguntas.value[indicePreguntaActual.value]);
 const porcentajeProgreso = computed(() => {
@@ -33,14 +31,12 @@ const porcentajeProgreso = computed(() => {
   return ((indicePreguntaActual.value + 1) / listaPreguntas.value.length) * 100;
 });
 
-// Para puzzle: obtener la palabra correcta (única respuesta con esCorrecta=true)
 const palabraCorrecta = computed(() => {
   if (!preguntaActual.value) return "";
   const correcta = preguntaActual.value.respuestas.find(r => r.esCorrecta);
   return correcta ? correcta.texto.toLowerCase().trim() : "";
 });
 
-// Partir el enunciado del puzzle en "antes" y "después" del hueco
 const partesPuzzle = computed(() => {
   if (!preguntaActual.value) return { antes: "", despues: "" };
   const partes = preguntaActual.value.enunciado.split("_____");
@@ -59,7 +55,6 @@ onMounted(async () => {
   }
 });
 
-// --- Quiz ---
 function seleccionarRespuesta(respuesta) {
   if (preguntaRespondida.value) return;
   identificadorRespuestaSeleccionada.value = respuesta.id_respuesta;
@@ -67,7 +62,6 @@ function seleccionarRespuesta(respuesta) {
   if (respuesta.esCorrecta) puntuacionTotal.value++;
 }
 
-// --- Puzzle ---
 function comprobarPuzzle() {
   if (preguntaRespondida.value) return;
   const escrita = respuestaEscrita.value.toLowerCase().trim();
@@ -81,7 +75,6 @@ function comprobarPuzzle() {
   }
 }
 
-// --- Común ---
 async function avanzarSiguientePregunta() {
   if (indicePreguntaActual.value < listaPreguntas.value.length - 1) {
     indicePreguntaActual.value++;
@@ -98,7 +91,7 @@ async function avanzarSiguientePregunta() {
           puntuacionTotal.value,
           listaPreguntas.value.length
         );
-      } catch {}
+      } catch { }
     }
   }
 }
@@ -117,29 +110,27 @@ function reiniciarJuego() {
 <template>
   <div class="contenedor-juego container py-4">
 
-    <!-- Cargando -->
     <div v-if="estaCargando" class="tarjeta animacion-aparecer-desde-abajo tarjeta-estado">
       <div class="indicador-carga indicador-carga-centrado"></div>
       <p class="texto-estado">Generando preguntas con IA a partir del temario...</p>
     </div>
 
-    <!-- Error -->
     <div v-else-if="errorCarga" class="tarjeta animacion-aparecer-desde-abajo tarjeta-estado">
       <div class="icono-estado-grande">⚠️</div>
       <p class="titulo-estado">No se pudieron cargar las preguntas</p>
       <p class="descripcion-estado">{{ errorCarga }}</p>
-      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a juegos</button>
+      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a
+        juegos</button>
     </div>
 
-    <!-- Sin preguntas -->
     <div v-else-if="listaPreguntas.length === 0" class="tarjeta animacion-aparecer-desde-abajo tarjeta-estado">
       <div class="icono-estado-grande">📭</div>
       <p class="titulo-estado">No hay preguntas disponibles</p>
       <p class="descripcion-estado">Asegúrate de que el tema tiene un PDF subido con contenido suficiente</p>
-      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a juegos</button>
+      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a
+        juegos</button>
     </div>
 
-    <!-- Resultado final -->
     <div v-else-if="juegoTerminado" class="tarjeta animacion-escalar-entrada tarjeta-estado">
       <div class="icono-resultado">🎉</div>
       <h2 class="titulo-resultado">¡Partida terminada!</h2>
@@ -147,7 +138,7 @@ function reiniciarJuego() {
       <p class="mensaje-resultado">
         {{ puntuacionTotal === listaPreguntas.length ? '¡Perfecto! 🏆'
           : puntuacionTotal >= listaPreguntas.length / 2 ? '¡Buen trabajo! 💪'
-          : 'Sigue practicando 📖' }}
+            : 'Sigue practicando 📖' }}
       </p>
       <div class="acciones-resultado">
         <button class="boton boton-principal" @click="reiniciarJuego">🔄 Jugar de nuevo</button>
@@ -155,7 +146,6 @@ function reiniciarJuego() {
       </div>
     </div>
 
-    <!-- Juego activo -->
     <template v-else>
       <div class="seccion-progreso">
         <div class="fila-progreso">
@@ -167,69 +157,57 @@ function reiniciarJuego() {
         </div>
       </div>
 
-      <!-- QUIZ -->
       <div v-if="!esPuzzle" class="tarjeta animacion-aparecer-desde-abajo tarjeta-pregunta">
         <h2 class="enunciado-pregunta">{{ preguntaActual.enunciado }}</h2>
         <div class="lista-respuestas">
-          <button
-            v-for="respuesta in preguntaActual.respuestas"
-            :key="respuesta.id_respuesta"
-            class="boton-respuesta"
+          <button v-for="respuesta in preguntaActual.respuestas" :key="respuesta.id_respuesta" class="boton-respuesta"
             :class="{
               'respuesta-seleccionada': identificadorRespuestaSeleccionada === respuesta.id_respuesta,
               'respuesta-correcta': preguntaRespondida && respuesta.esCorrecta,
               'respuesta-incorrecta': preguntaRespondida && identificadorRespuestaSeleccionada === respuesta.id_respuesta && !respuesta.esCorrecta
-            }"
-            @click="seleccionarRespuesta(respuesta)"
-            :disabled="preguntaRespondida"
-          >
+            }" @click="seleccionarRespuesta(respuesta)" :disabled="preguntaRespondida">
             <span>{{ respuesta.texto }}</span>
             <span v-if="preguntaRespondida && respuesta.esCorrecta" class="icono-resultado-respuesta">✅</span>
-            <span v-else-if="preguntaRespondida && identificadorRespuestaSeleccionada === respuesta.id_respuesta && !respuesta.esCorrecta" class="icono-resultado-respuesta">❌</span>
+            <span
+              v-else-if="preguntaRespondida && identificadorRespuestaSeleccionada === respuesta.id_respuesta && !respuesta.esCorrecta"
+              class="icono-resultado-respuesta">❌</span>
           </button>
         </div>
         <div v-if="preguntaRespondida" class="contenedor-boton-siguiente">
           <button class="boton boton-principal" @click="avanzarSiguientePregunta">
-            {{ indicePreguntaActual < listaPreguntas.length - 1 ? 'Siguiente →' : 'Ver resultado' }}
-          </button>
+            {{ indicePreguntaActual < listaPreguntas.length - 1 ? 'Siguiente →' : 'Ver resultado' }} </button>
         </div>
       </div>
 
-      <!-- PUZZLE -->
       <div v-else class="tarjeta animacion-aparecer-desde-abajo tarjeta-pregunta">
         <p class="etiqueta-puzzle">🧩 Completa la frase</p>
         <div class="frase-puzzle">
           <span class="texto-frase">{{ partesPuzzle.antes }}</span>
           <span v-if="!preguntaRespondida" class="hueco-activo">_____</span>
-          <span v-else class="palabra-revelada" :class="resultadoPuzzle === 'correcta' ? 'palabra-correcta' : 'palabra-incorrecta'">
+          <span v-else class="palabra-revelada"
+            :class="resultadoPuzzle === 'correcta' ? 'palabra-correcta' : 'palabra-incorrecta'">
             {{ palabraCorrecta }}
           </span>
           <span class="texto-frase">{{ partesPuzzle.despues }}</span>
         </div>
 
         <div v-if="!preguntaRespondida" class="grupo-input-puzzle">
-          <input
-            v-model="respuestaEscrita"
-            class="input-puzzle"
-            type="text"
-            placeholder="Escribe la palabra que falta..."
-            @keyup.enter="comprobarPuzzle"
-            autofocus
-          />
+          <input v-model="respuestaEscrita" class="input-puzzle" type="text"
+            placeholder="Escribe la palabra que falta..." @keyup.enter="comprobarPuzzle" autofocus />
           <button class="boton boton-principal" @click="comprobarPuzzle" :disabled="!respuestaEscrita.trim()">
             Comprobar ✓
           </button>
         </div>
 
-        <div v-else class="feedback-puzzle" :class="resultadoPuzzle === 'correcta' ? 'feedback-correcto' : 'feedback-incorrecto'">
+        <div v-else class="feedback-puzzle"
+          :class="resultadoPuzzle === 'correcta' ? 'feedback-correcto' : 'feedback-incorrecto'">
           <span v-if="resultadoPuzzle === 'correcta'">✅ ¡Correcto!</span>
           <span v-else>❌ Incorrecto — la respuesta era: <strong>{{ palabraCorrecta }}</strong></span>
         </div>
 
         <div v-if="preguntaRespondida" class="contenedor-boton-siguiente">
           <button class="boton boton-principal" @click="avanzarSiguientePregunta">
-            {{ indicePreguntaActual < listaPreguntas.length - 1 ? 'Siguiente →' : 'Ver resultado' }}
-          </button>
+            {{ indicePreguntaActual < listaPreguntas.length - 1 ? 'Siguiente →' : 'Ver resultado' }} </button>
         </div>
       </div>
     </template>
@@ -392,7 +370,6 @@ function reiniciarJuego() {
   cursor: default;
 }
 
-/* Puzzle */
 .etiqueta-puzzle {
   font-size: 0.8rem;
   font-weight: 700;

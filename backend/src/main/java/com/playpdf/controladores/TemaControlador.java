@@ -19,13 +19,11 @@ public class TemaControlador {
 		this.temaServicio = temaServicio;
 	}
 
-	// GET /api/temas/asignatura/{idAsignatura}
 	@GetMapping("/asignatura/{idAsignatura}")
 	public ResponseEntity<List<TemaDto>> obtenerPorAsignatura(@PathVariable Long idAsignatura) {
 		return ResponseEntity.ok(temaServicio.obtenerPorAsignatura(idAsignatura));
 	}
 
-	// GET /api/temas/{id}
 	@GetMapping("/{id}")
 	public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
 		try {
@@ -35,7 +33,6 @@ public class TemaControlador {
 		}
 	}
 
-	// POST /api/temas (multipart/form-data)
 	@PostMapping(consumes = "multipart/form-data")
 	public ResponseEntity<?> crear(@RequestParam("titulo") String titulo,
 			@RequestParam(value = "descripcion", required = false) String descripcion,
@@ -48,7 +45,6 @@ public class TemaControlador {
 		}
 	}
 
-	// PUT /api/temas/{id} (multipart/form-data)
 	@PutMapping(value = "/{id}", consumes = "multipart/form-data")
 	public ResponseEntity<?> actualizar(@PathVariable Long id,
 			@RequestParam(value = "titulo", required = false) String titulo,
@@ -62,7 +58,6 @@ public class TemaControlador {
 		}
 	}
 
-	// DELETE /api/temas/{id}
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> eliminar(@PathVariable Long id) {
 		try {

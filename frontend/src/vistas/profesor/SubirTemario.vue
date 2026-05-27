@@ -14,7 +14,6 @@ const datosFormularioTema = ref({ titulo: "", descripcion: "", archivoSelecciona
 const nombreArchivoSeleccionado = ref("");
 const estaSobreZonaArrastre = ref(false);
 
-// Estado de regeneración por tema { [idTema]: 'idle' | 'cargando' | 'ok' | 'error' }
 const estadoRegeneracion = ref({});
 
 onMounted(async () => {
@@ -65,7 +64,6 @@ async function agregarTema() {
 async function eliminarTema(identificador) {
   if (confirm("¿Eliminar este tema? También se borrarán sus preguntas generadas.")) {
     try {
-      // Primero borrar preguntas, luego el tema
       await servicioJuegos.borrarPreguntas(identificador).catch(() => {});
       await servicioTemas.eliminar(identificador);
       listaTemas.value = listaTemas.value.filter(t => t.id_tema !== identificador);
@@ -125,7 +123,6 @@ async function borrarPreguntas(idTema) {
       <div v-for="tema in listaTemas" :key="tema.id_tema"
         class="tarjeta animacion-aparecer-desde-abajo">
 
-        <!-- Fila principal del tema -->
         <div class="d-flex align-items-center gap-3 flex-wrap">
           <div class="icono-tema-pdf">📕</div>
           <div class="flex-grow-1 min-w-0">
@@ -139,12 +136,10 @@ async function borrarPreguntas(idTema) {
           </div>
         </div>
 
-        <!-- Fila de acciones de preguntas IA -->
         <div class="barra-ia mt-3 pt-3">
           <span class="etiqueta-ia">🤖 Preguntas IA</span>
           <div class="acciones-ia">
 
-            <!-- Regenerar tests -->
             <button
               class="btn btn-sm btn-outline-primary"
               :disabled="estadoRegeneracion[tema.id_tema] === 'cargando'"
@@ -158,7 +153,6 @@ async function borrarPreguntas(idTema) {
               <span v-else>🔄 Regenerar preguntas</span>
             </button>
 
-            <!-- Borrar preguntas -->
             <button
               class="btn btn-sm btn-outline-danger"
               :disabled="estadoRegeneracion[tema.id_tema] === 'cargando'"
@@ -172,7 +166,6 @@ async function borrarPreguntas(idTema) {
       </div>
     </div>
 
-    <!-- Modal subir tema -->
     <div v-if="mostrarVentanaModal" class="superposicion-modal" @click.self="mostrarVentanaModal = false">
       <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">

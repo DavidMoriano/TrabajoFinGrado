@@ -47,7 +47,6 @@ public class TemaServicio {
 		Asignatura asignatura = asignaturaRepositorio.findById(idAsignatura)
 				.orElseThrow(() -> new RuntimeException("Asignatura no encontrada: " + idAsignatura));
 
-		// Guardar el PDF en disco
 		String nombreUnico = UUID.randomUUID() + "_" + archivoPdf.getOriginalFilename();
 		Path directorio = Paths.get(directorioPdfs);
 		Files.createDirectories(directorio);
@@ -73,9 +72,7 @@ public class TemaServicio {
 		if (descripcion != null)
 			tema.setDescripcion(descripcion);
 
-		// Si se sube un nuevo PDF, reemplazar el anterior
 		if (archivoPdf != null && !archivoPdf.isEmpty()) {
-			// Borrar el archivo anterior si existe
 			if (tema.getRutaArchivoPdf() != null) {
 				Path anterior = Paths.get(tema.getRutaArchivoPdf());
 				Files.deleteIfExists(anterior);
@@ -95,18 +92,15 @@ public class TemaServicio {
 	public void eliminar(Long id) {
 		Tema tema = temaRepositorio.findById(id).orElseThrow(() -> new RuntimeException("Tema no encontrado: " + id));
 
-		// Eliminar el archivo PDF del disco
 		if (tema.getRutaArchivoPdf() != null) {
 			try {
 				Files.deleteIfExists(Paths.get(tema.getRutaArchivoPdf()));
 			} catch (IOException e) {
-				// Continuar aunque no se pueda borrar el archivo
 			}
 		}
 		temaRepositorio.deleteById(id);
 	}
 
-	// Devuelve la ruta del archivo PDF para que el servicio de IA pueda leerlo
 	public Path obtenerRutaPdf(Long idTema) {
 		Tema tema = temaRepositorio.findById(idTema)
 				.orElseThrow(() -> new RuntimeException("Tema no encontrado: " + idTema));

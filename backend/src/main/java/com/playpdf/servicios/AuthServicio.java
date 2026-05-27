@@ -47,7 +47,6 @@ public class AuthServicio {
 			throw new RuntimeException("El email ya está registrado");
 		}
 
-		// Convertir siempre a mayúsculas para que coincida con el enum
 		String rol = request.getRol() != null ? request.getRol().toUpperCase() : "ALUMNO";
 
 		if ("PROFESOR".equals(rol)) {
@@ -65,7 +64,7 @@ public class AuthServicio {
 		usuario.setApellidos(request.getApellidos());
 		usuario.setEmail(request.getEmail());
 		usuario.setContrasena(passwordEncoder.encode(request.getContrasena()));
-		usuario.setRol(Usuario.Rol.valueOf(rol)); // rol ya está en mayúsculas
+		usuario.setRol(Usuario.Rol.valueOf(rol));
 		usuario.setEdad(request.getEdad());
 		usuario.setEstudios(request.getEstudios());
 
