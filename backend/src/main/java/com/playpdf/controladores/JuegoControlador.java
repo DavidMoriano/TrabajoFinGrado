@@ -56,8 +56,7 @@ public class JuegoControlador {
 	public ResponseEntity<?> regenerarPreguntas(@RequestBody Map<String, Object> datos) {
 		try {
 			Long idTema = Long.valueOf(datos.get("id_tema").toString());
-			juegoServicio.borrarPreguntas(idTema);
-			juegoServicio.generarPreguntasConIA(idTema);
+			juegoServicio.regenerarPreguntas(idTema);
 			return ResponseEntity.ok(Map.of("message", "Preguntas regeneradas correctamente"));
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));

@@ -53,12 +53,12 @@ async function agregarCentro() {
 }
 
 async function eliminarCentro(identificador) {
-  if (confirm('¿Eliminar este centro? Se eliminarán también sus asignaturas asociadas.')) {
+  if (confirm('¿Eliminar este centro?')) {
     try {
       await servicioCentros.eliminar(identificador)
       listaCentros.value = listaCentros.value.filter(c => c.id_centro !== identificador)
-    } catch {
-      alert('Error al eliminar el centro')
+    } catch (error) {
+      alert(error.response?.data?.message || 'Error al eliminar el centro')
     }
   }
 }

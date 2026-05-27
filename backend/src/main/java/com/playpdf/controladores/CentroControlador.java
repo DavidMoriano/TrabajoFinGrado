@@ -43,11 +43,12 @@ public class CentroControlador {
 	@PostMapping
 	public ResponseEntity<?> crear(@RequestBody Centro centro) {
 		try {
-
 			if (centro.getCodigoAcceso() != null) {
 				centro.setCodigoAcceso(centro.getCodigoAcceso().toUpperCase());
 			}
 			return ResponseEntity.ok(centroServicio.crear(centro));
+		} catch (org.springframework.dao.DataIntegrityViolationException e) {
+			return ResponseEntity.badRequest().body(java.util.Map.of("message", "El código de acceso ya está en uso. Elige otro código."));
 		} catch (RuntimeException e) {
 			return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
 		}
@@ -58,8 +59,10 @@ public class CentroControlador {
 		try {
 			centroServicio.eliminar(id);
 			return ResponseEntity.ok(java.util.Map.of("message", "Centro eliminado"));
+		} catch (org.springframework.dao.DataIntegrityViolationException e) {
+			return ResponseEntity.badRequest().body(java.util.Map.of("message", "No se puede eliminar el centro porque tiene asignaturas asociadas. Elimina primero todas sus asignaturas."));
 		} catch (RuntimeException e) {
-			return ResponseEntity.notFound().build();
+			return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
 		}
 	}
 }

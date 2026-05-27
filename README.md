@@ -1,24 +1,21 @@
 # TrabajoFinGrado
-
-## Descripción
-Proyecto de Trabajo de Fin de Grado.
-
----
-
-## 🚀 Instrucciones para ejecutar la aplicación
-
-### Requisitos previos
-
-- Tener **Docker** instalado en tu equipo.
-- Clonar o descargar el proyecto en tu máquina local.
-
-### Pasos para ejecutar
-
-1. Abre una **terminal** en la carpeta raíz del proyecto.
-
-2. Asegúrate de que el servicio de Docker esté corriendo.
-
-3. Ejecuta el siguiente comando:
-
-```bash
-docker compose up
+Instrucciones para correr la aplicación: 
+ - BACK:
+    - Usar el script que se en cuentra dentro de la carpeta del backend/src/main/resources. (No tiene datos base, hace falta hacer un registro antes).
+    - Cambiar la contraseña y el nombre de usuario de la base de datos por la propia.
+    - Mirar los códigos de autenticación para los roles. (código de profe y admin en properties de Back).
+    - Correrlo con SpringBoot.
+- FRONT: 
+    - npm install y npm run dev.
+ 
+Funcionalidades: 
+  - Autenticación, todo tipo registros para los 3 roles.
+  - Navegación entre vistas.
+  - Ver colegios (Maps no funciona correctamente)
+  - Profesores:
+      - Añadir-Eliminar-Editar asignaturas propias.
+      - Añadir temario (pdf).
+  - Admin:
+      - Ve toda la información.
+  - Alumno:
+      - Ve todas las asignaturas.

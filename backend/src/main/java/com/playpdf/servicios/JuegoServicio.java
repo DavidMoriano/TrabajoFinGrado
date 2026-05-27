@@ -60,6 +60,8 @@ public class JuegoServicio {
 		Pregunta.TipoPregunta tipo = Pregunta.TipoPregunta.valueOf(tipoJuego);
 		List<Pregunta> preguntas = preguntaRepositorio.findByTemaIdTemaAndTipo(idTema, tipo);
 
+		java.util.Collections.shuffle(preguntas);
+
 		List<Map<String, Object>> resultado = new ArrayList<>();
 		for (Pregunta p : preguntas) {
 			List<Map<String, Object>> respuestas = new ArrayList<>();
@@ -69,6 +71,7 @@ public class JuegoServicio {
 						"texto", r.getTexto(),
 						"esCorrecta", r.getEsCorrecta()));
 			}
+			java.util.Collections.shuffle(respuestas);
 			resultado.add(Map.of(
 					"id_pregunta", p.getIdPregunta(),
 					"enunciado", p.getEnunciado(),
@@ -83,6 +86,23 @@ public class JuegoServicio {
 
 		respuestaRepositorio.deleteByTemaIdTema(idTema);
 		preguntaRepositorio.deleteByIdTema(idTema);
+	}
+
+	@Transactional
+	public void regenerarPreguntas(Long idTema) throws Exception {
+		respuestaRepositorio.deleteByTemaIdTema(idTema);
+		preguntaRepositorio.deleteByIdTema(idTema);
+
+		Tema tema = temaRepositorio.findById(idTema)
+				.orElseThrow(() -> new RuntimeException("Tema no encontrado: " + idTema));
+
+		String textoPdf = leerTextoPdf(idTema);
+
+		String jsonQuiz = llamarApiIA(textoPdf, tema.getTitulo(), "quiz");
+		guardarPreguntasDesdeJson(jsonQuiz, tema, Pregunta.TipoPregunta.quiz);
+
+		String jsonPuzzle = llamarApiIA(textoPdf, tema.getTitulo(), "puzzle");
+		guardarPreguntasDesdeJson(jsonPuzzle, tema, Pregunta.TipoPregunta.puzzle);
 	}
 
 	@Transactional
