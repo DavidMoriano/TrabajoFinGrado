@@ -26,6 +26,7 @@ onMounted(async () => {
       servicioAsignaturas.obtenerPorCentro(identificadorCentro),
     ])
     centro.value = resCentro.data
+
     const idProfesor = almacenAutenticacion.usuarioActual?.id_usuario
     listaAsignaturas.value = resAsig.data.filter(a => a.id_profesor === idProfesor)
   } catch {
@@ -88,6 +89,7 @@ async function confirmarEliminar() {
 
 <template>
   <div class="container py-4">
+
     <div class="mb-4">
       <button class="btn btn-link p-0 mb-2 text-secondary" @click="enrutador.push({ name: 'MisCentros' })">
         ← Volver a mis centros

@@ -4,9 +4,12 @@ import com.playpdf.dto.TemaDto;
 import com.playpdf.modelos.Asignatura;
 import com.playpdf.modelos.Tema;
 import com.playpdf.repositorios.AsignaturaRepositorio;
+import com.playpdf.repositorios.PreguntaRepositorio;
+import com.playpdf.repositorios.RespuestaRepositorio;
 import com.playpdf.repositorios.TemaRepositorio;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -22,14 +25,19 @@ public class TemaServicio {
 
 	private final TemaRepositorio temaRepositorio;
 	private final AsignaturaRepositorio asignaturaRepositorio;
+	private final PreguntaRepositorio preguntaRepositorio;
+	private final RespuestaRepositorio respuestaRepositorio;
+
+	public TemaServicio(TemaRepositorio temaRepositorio, AsignaturaRepositorio asignaturaRepositorio,
+			PreguntaRepositorio preguntaRepositorio, RespuestaRepositorio respuestaRepositorio) {
+		this.temaRepositorio = temaRepositorio;
+		this.asignaturaRepositorio = asignaturaRepositorio;
+		this.preguntaRepositorio = preguntaRepositorio;
+		this.respuestaRepositorio = respuestaRepositorio;
+	}
 
 	@Value("${almacenamiento.directorio-pdfs}")
 	private String directorioPdfs;
-
-	public TemaServicio(TemaRepositorio temaRepositorio, AsignaturaRepositorio asignaturaRepositorio) {
-		this.temaRepositorio = temaRepositorio;
-		this.asignaturaRepositorio = asignaturaRepositorio;
-	}
 
 	public List<TemaDto> obtenerPorAsignatura(Long idAsignatura) {
 		return temaRepositorio.findByAsignaturaIdAsignatura(idAsignatura).stream().map(TemaDto::desde)
@@ -73,6 +81,7 @@ public class TemaServicio {
 			tema.setDescripcion(descripcion);
 
 		if (archivoPdf != null && !archivoPdf.isEmpty()) {
+
 			if (tema.getRutaArchivoPdf() != null) {
 				Path anterior = Paths.get(tema.getRutaArchivoPdf());
 				Files.deleteIfExists(anterior);
@@ -89,13 +98,18 @@ public class TemaServicio {
 		return TemaDto.desde(temaRepositorio.save(tema));
 	}
 
+	@Transactional
 	public void eliminar(Long id) {
 		Tema tema = temaRepositorio.findById(id).orElseThrow(() -> new RuntimeException("Tema no encontrado: " + id));
+
+		respuestaRepositorio.deleteByTemaIdTema(id);
+		preguntaRepositorio.deleteByIdTema(id);
 
 		if (tema.getRutaArchivoPdf() != null) {
 			try {
 				Files.deleteIfExists(Paths.get(tema.getRutaArchivoPdf()));
 			} catch (IOException e) {
+
 			}
 		}
 		temaRepositorio.deleteById(id);

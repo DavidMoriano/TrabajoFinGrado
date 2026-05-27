@@ -21,4 +21,9 @@ public interface PreguntaRepositorio extends JpaRepository<Pregunta, Long> {
 	@Transactional
 	@Query("DELETE FROM Pregunta p WHERE p.tema.idTema = :idTema")
 	void deleteByIdTema(@Param("idTema") Long idTema);
+
+	@Modifying
+	@Transactional
+	@Query("DELETE FROM Pregunta p WHERE p.tema.asignatura.idAsignatura = :idAsignatura")
+	void deleteByAsignaturaIdAsignatura(@Param("idAsignatura") Long idAsignatura);
 }

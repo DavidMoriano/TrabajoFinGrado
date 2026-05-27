@@ -64,6 +64,7 @@ async function agregarTema() {
 async function eliminarTema(identificador) {
   if (confirm("¿Eliminar este tema? También se borrarán sus preguntas generadas.")) {
     try {
+
       await servicioJuegos.borrarPreguntas(identificador).catch(() => {});
       await servicioTemas.eliminar(identificador);
       listaTemas.value = listaTemas.value.filter(t => t.id_tema !== identificador);

@@ -91,7 +91,7 @@ async function avanzarSiguientePregunta() {
           puntuacionTotal.value,
           listaPreguntas.value.length
         );
-      } catch { }
+      } catch {}
     }
   }
 }
@@ -119,16 +119,14 @@ function reiniciarJuego() {
       <div class="icono-estado-grande">⚠️</div>
       <p class="titulo-estado">No se pudieron cargar las preguntas</p>
       <p class="descripcion-estado">{{ errorCarga }}</p>
-      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a
-        juegos</button>
+      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a juegos</button>
     </div>
 
     <div v-else-if="listaPreguntas.length === 0" class="tarjeta animacion-aparecer-desde-abajo tarjeta-estado">
       <div class="icono-estado-grande">📭</div>
       <p class="titulo-estado">No hay preguntas disponibles</p>
       <p class="descripcion-estado">Asegúrate de que el tema tiene un PDF subido con contenido suficiente</p>
-      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a
-        juegos</button>
+      <button class="boton boton-secundario" @click="enrutador.push({ name: 'SeleccionJuegos' })">← Volver a juegos</button>
     </div>
 
     <div v-else-if="juegoTerminado" class="tarjeta animacion-escalar-entrada tarjeta-estado">
@@ -138,7 +136,7 @@ function reiniciarJuego() {
       <p class="mensaje-resultado">
         {{ puntuacionTotal === listaPreguntas.length ? '¡Perfecto! 🏆'
           : puntuacionTotal >= listaPreguntas.length / 2 ? '¡Buen trabajo! 💪'
-            : 'Sigue practicando 📖' }}
+          : 'Sigue practicando 📖' }}
       </p>
       <div class="acciones-resultado">
         <button class="boton boton-principal" @click="reiniciarJuego">🔄 Jugar de nuevo</button>
@@ -160,22 +158,27 @@ function reiniciarJuego() {
       <div v-if="!esPuzzle" class="tarjeta animacion-aparecer-desde-abajo tarjeta-pregunta">
         <h2 class="enunciado-pregunta">{{ preguntaActual.enunciado }}</h2>
         <div class="lista-respuestas">
-          <button v-for="respuesta in preguntaActual.respuestas" :key="respuesta.id_respuesta" class="boton-respuesta"
+          <button
+            v-for="respuesta in preguntaActual.respuestas"
+            :key="respuesta.id_respuesta"
+            class="boton-respuesta"
             :class="{
               'respuesta-seleccionada': identificadorRespuestaSeleccionada === respuesta.id_respuesta,
               'respuesta-correcta': preguntaRespondida && respuesta.esCorrecta,
               'respuesta-incorrecta': preguntaRespondida && identificadorRespuestaSeleccionada === respuesta.id_respuesta && !respuesta.esCorrecta
-            }" @click="seleccionarRespuesta(respuesta)" :disabled="preguntaRespondida">
+            }"
+            @click="seleccionarRespuesta(respuesta)"
+            :disabled="preguntaRespondida"
+          >
             <span>{{ respuesta.texto }}</span>
             <span v-if="preguntaRespondida && respuesta.esCorrecta" class="icono-resultado-respuesta">✅</span>
-            <span
-              v-else-if="preguntaRespondida && identificadorRespuestaSeleccionada === respuesta.id_respuesta && !respuesta.esCorrecta"
-              class="icono-resultado-respuesta">❌</span>
+            <span v-else-if="preguntaRespondida && identificadorRespuestaSeleccionada === respuesta.id_respuesta && !respuesta.esCorrecta" class="icono-resultado-respuesta">❌</span>
           </button>
         </div>
         <div v-if="preguntaRespondida" class="contenedor-boton-siguiente">
           <button class="boton boton-principal" @click="avanzarSiguientePregunta">
-            {{ indicePreguntaActual < listaPreguntas.length - 1 ? 'Siguiente →' : 'Ver resultado' }} </button>
+            {{ indicePreguntaActual < listaPreguntas.length - 1 ? 'Siguiente →' : 'Ver resultado' }}
+          </button>
         </div>
       </div>
 
@@ -184,30 +187,35 @@ function reiniciarJuego() {
         <div class="frase-puzzle">
           <span class="texto-frase">{{ partesPuzzle.antes }}</span>
           <span v-if="!preguntaRespondida" class="hueco-activo">_____</span>
-          <span v-else class="palabra-revelada"
-            :class="resultadoPuzzle === 'correcta' ? 'palabra-correcta' : 'palabra-incorrecta'">
+          <span v-else class="palabra-revelada" :class="resultadoPuzzle === 'correcta' ? 'palabra-correcta' : 'palabra-incorrecta'">
             {{ palabraCorrecta }}
           </span>
           <span class="texto-frase">{{ partesPuzzle.despues }}</span>
         </div>
 
         <div v-if="!preguntaRespondida" class="grupo-input-puzzle">
-          <input v-model="respuestaEscrita" class="input-puzzle" type="text"
-            placeholder="Escribe la palabra que falta..." @keyup.enter="comprobarPuzzle" autofocus />
+          <input
+            v-model="respuestaEscrita"
+            class="input-puzzle"
+            type="text"
+            placeholder="Escribe la palabra que falta..."
+            @keyup.enter="comprobarPuzzle"
+            autofocus
+          />
           <button class="boton boton-principal" @click="comprobarPuzzle" :disabled="!respuestaEscrita.trim()">
             Comprobar ✓
           </button>
         </div>
 
-        <div v-else class="feedback-puzzle"
-          :class="resultadoPuzzle === 'correcta' ? 'feedback-correcto' : 'feedback-incorrecto'">
+        <div v-else class="feedback-puzzle" :class="resultadoPuzzle === 'correcta' ? 'feedback-correcto' : 'feedback-incorrecto'">
           <span v-if="resultadoPuzzle === 'correcta'">✅ ¡Correcto!</span>
           <span v-else>❌ Incorrecto — la respuesta era: <strong>{{ palabraCorrecta }}</strong></span>
         </div>
 
         <div v-if="preguntaRespondida" class="contenedor-boton-siguiente">
           <button class="boton boton-principal" @click="avanzarSiguientePregunta">
-            {{ indicePreguntaActual < listaPreguntas.length - 1 ? 'Siguiente →' : 'Ver resultado' }} </button>
+            {{ indicePreguntaActual < listaPreguntas.length - 1 ? 'Siguiente →' : 'Ver resultado' }}
+          </button>
         </div>
       </div>
     </template>
@@ -311,7 +319,6 @@ function reiniciarJuego() {
   padding: var(--espacio-extra-grande);
 }
 
-/* Quiz */
 .enunciado-pregunta {
   font-size: 1.15rem;
   font-weight: 700;

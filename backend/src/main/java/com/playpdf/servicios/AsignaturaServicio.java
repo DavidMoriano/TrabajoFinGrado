@@ -6,11 +6,15 @@ import com.playpdf.modelos.Centro;
 import com.playpdf.modelos.Usuario;
 import com.playpdf.repositorios.AsignaturaRepositorio;
 import com.playpdf.repositorios.CentroRepositorio;
+import com.playpdf.repositorios.EstadisticaRepositorio;
+import com.playpdf.repositorios.PreguntaRepositorio;
+import com.playpdf.repositorios.RespuestaRepositorio;
 import com.playpdf.repositorios.TemaRepositorio;
 import com.playpdf.repositorios.UsuarioRepositorio;
 import com.playpdf.request.AsignaturaRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,13 +26,21 @@ public class AsignaturaServicio {
 	private final UsuarioRepositorio usuarioRepositorio;
 	private final CentroRepositorio centroRepositorio;
 	private final TemaRepositorio temaRepositorio;
+	private final PreguntaRepositorio preguntaRepositorio;
+	private final RespuestaRepositorio respuestaRepositorio;
+	private final EstadisticaRepositorio estadisticaRepositorio;
 
 	public AsignaturaServicio(AsignaturaRepositorio asignaturaRepositorio, UsuarioRepositorio usuarioRepositorio,
-			CentroRepositorio centroRepositorio, TemaRepositorio temaRepositorio) {
+			CentroRepositorio centroRepositorio, TemaRepositorio temaRepositorio,
+			PreguntaRepositorio preguntaRepositorio, RespuestaRepositorio respuestaRepositorio,
+			EstadisticaRepositorio estadisticaRepositorio) {
 		this.asignaturaRepositorio = asignaturaRepositorio;
 		this.usuarioRepositorio = usuarioRepositorio;
 		this.centroRepositorio = centroRepositorio;
 		this.temaRepositorio = temaRepositorio;
+		this.preguntaRepositorio = preguntaRepositorio;
+		this.respuestaRepositorio = respuestaRepositorio;
+		this.estadisticaRepositorio = estadisticaRepositorio;
 	}
 
 	public List<AsignaturaDto> obtenerTodas() {
@@ -95,10 +107,16 @@ public class AsignaturaServicio {
 		return AsignaturaDto.desde(asignaturaRepositorio.save(asignatura));
 	}
 
+	@Transactional
 	public void eliminar(Long id) {
 		if (!asignaturaRepositorio.existsById(id)) {
 			throw new RuntimeException("Asignatura no encontrada: " + id);
 		}
+
+		respuestaRepositorio.deleteByAsignaturaIdAsignatura(id);
+		preguntaRepositorio.deleteByAsignaturaIdAsignatura(id);
+		temaRepositorio.deleteByAsignaturaIdAsignatura(id);
+		estadisticaRepositorio.deleteByAsignaturaIdAsignatura(id);
 		asignaturaRepositorio.deleteById(id);
 	}
 }

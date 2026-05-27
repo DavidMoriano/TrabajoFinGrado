@@ -23,7 +23,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/playpdf?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: PracticaRoot
-      JWT_SECRET: prwsoL)*8)1?_dy<p[_l4^b+O!X1MSNF2Z1Av.>g8Tk
+      JWT_SECRET: +5BZ%{dn<FLXAzb(x)/H[CJqL|y)]JQ?U6%YD^8RY.Z
       IA_API_KEY: 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
       IA_MODELO: llama-3.3-70b-versatile
       IA_URL: https://api.groq.com/openai/v1/chat/completions

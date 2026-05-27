@@ -41,8 +41,10 @@ export const servicioAutenticacion = {
     return clienteHttp.post("/auth/register", datosUsuario);
   },
   cerrarSesion() {
+
     localStorage.removeItem("playpdf-token");
     localStorage.removeItem("playpdf-usuario");
+
     Object.keys(localStorage)
       .filter(clave => clave.startsWith("playpdf-mis-centros-"))
       .forEach(clave => localStorage.removeItem(clave));

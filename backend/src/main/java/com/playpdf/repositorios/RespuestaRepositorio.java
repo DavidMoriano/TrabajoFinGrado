@@ -15,4 +15,9 @@ public interface RespuestaRepositorio extends JpaRepository<Respuesta, Long> {
     @Transactional
     @Query("DELETE FROM Respuesta r WHERE r.pregunta.tema.idTema = :idTema")
     void deleteByTemaIdTema(@Param("idTema") Long idTema);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Respuesta r WHERE r.pregunta.tema.asignatura.idAsignatura = :idAsignatura")
+    void deleteByAsignaturaIdAsignatura(@Param("idAsignatura") Long idAsignatura);
 }

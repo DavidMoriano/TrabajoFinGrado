@@ -80,7 +80,7 @@ public class JuegoServicio {
 
 	@Transactional
 	public void borrarPreguntas(Long idTema) {
-		// Hay que borrar las respuestas primero para no romper la clave foránea
+
 		respuestaRepositorio.deleteByTemaIdTema(idTema);
 		preguntaRepositorio.deleteByIdTema(idTema);
 	}
@@ -92,14 +92,12 @@ public class JuegoServicio {
 
 		String textoPdf = leerTextoPdf(idTema);
 
-		// Generar preguntas de quiz si no existen
 		List<Pregunta> quizExistentes = preguntaRepositorio.findByTemaIdTemaAndTipo(idTema, Pregunta.TipoPregunta.quiz);
 		if (quizExistentes.isEmpty()) {
 			String jsonQuiz = llamarApiIA(textoPdf, tema.getTitulo(), "quiz");
 			guardarPreguntasDesdeJson(jsonQuiz, tema, Pregunta.TipoPregunta.quiz);
 		}
 
-		// Generar preguntas de puzzle si no existen
 		List<Pregunta> puzzleExistentes = preguntaRepositorio.findByTemaIdTemaAndTipo(idTema, Pregunta.TipoPregunta.puzzle);
 		if (puzzleExistentes.isEmpty()) {
 			String jsonPuzzle = llamarApiIA(textoPdf, tema.getTitulo(), "puzzle");
@@ -140,11 +138,12 @@ public class JuegoServicio {
 					Responde ÚNICAMENTE con un array JSON, sin texto adicional, sin markdown, sin bloques de código.
 					Formato exacto:
 					[{"enunciado":"¿Pregunta?","respuestas":[{"texto":"Opción A","esCorrecta":true},{"texto":"Opción B","esCorrecta":false},{"texto":"Opción C","esCorrecta":false},{"texto":"Opción D","esCorrecta":false}]}]
-					
+
 					Texto del tema:
 					%s
 					""".formatted(tituloTema, textoPdf);
 		} else {
+
 			prompt = """
 					Eres un generador de ejercicios educativos de completar frases.
 					Basándote en el siguiente texto del tema "%s", genera exactamente 5 frases incompletas.
@@ -153,7 +152,7 @@ public class JuegoServicio {
 					Responde ÚNICAMENTE con un array JSON, sin texto adicional, sin markdown, sin bloques de código.
 					Formato exacto:
 					[{"frase":"La _____ es el proceso por el que las plantas producen energía.","respuesta":"fotosíntesis"}]
-					
+
 					Texto del tema:
 					%s
 					""".formatted(tituloTema, textoPdf);
@@ -222,6 +221,7 @@ public class JuegoServicio {
 				}
 
 			} else {
+
 				pregunta.setEnunciado(nodo.get("frase").asText());
 				preguntaRepositorio.save(pregunta);
 

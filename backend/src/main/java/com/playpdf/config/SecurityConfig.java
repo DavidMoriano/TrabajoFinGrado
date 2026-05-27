@@ -38,16 +38,25 @@ public class SecurityConfig {
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource())).csrf(csrf -> csrf.disable())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
+
 						.requestMatchers("/api/auth/**").permitAll()
+
 						.requestMatchers(HttpMethod.GET, "/api/centros/**").authenticated()
 						.requestMatchers(HttpMethod.POST, "/api/centros/**").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.DELETE, "/api/centros/**").hasRole("ADMIN")
+
 						.requestMatchers("/api/usuarios/**").hasRole("ADMIN")
+
 						.requestMatchers("/api/estadisticas/globales").hasRole("ADMIN")
+
 						.requestMatchers("/api/asignaturas/**").authenticated()
+
 						.requestMatchers("/api/temas/**").authenticated()
+
 						.requestMatchers("/api/juegos/**").authenticated()
+
 						.requestMatchers("/api/estadisticas/**").authenticated()
+
 						.anyRequest().authenticated())
 				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

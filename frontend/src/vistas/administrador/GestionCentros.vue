@@ -118,7 +118,6 @@ async function eliminarCentro(identificador) {
       </table>
     </div>
 
-    <!-- Modal crear centro -->
     <div v-if="mostrarVentanaModal" class="superposicion-modal" @click.self="mostrarVentanaModal = false">
       <div class="contenido-modal animacion-escalar-entrada">
         <div class="cabecera-modal">

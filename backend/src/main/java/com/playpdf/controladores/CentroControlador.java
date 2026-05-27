@@ -43,6 +43,7 @@ public class CentroControlador {
 	@PostMapping
 	public ResponseEntity<?> crear(@RequestBody Centro centro) {
 		try {
+
 			if (centro.getCodigoAcceso() != null) {
 				centro.setCodigoAcceso(centro.getCodigoAcceso().toUpperCase());
 			}

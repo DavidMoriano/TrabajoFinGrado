@@ -58,6 +58,7 @@ onMounted(async () => {
     </div>
 
     <template v-else>
+
       <div class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
           <div class="tarjeta tarjeta-estadistica animacion-aparecer-desde-abajo h-100">
