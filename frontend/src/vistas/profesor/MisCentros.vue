@@ -2,52 +2,54 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { servicioCentros } from '@/servicios/api'
-import { usarAlmacenAutenticacion } from '@/almacenes/autenticacion'
 
 const enrutador = useRouter()
-const almacenAutenticacion = usarAlmacenAutenticacion()
-
-const idUsuario = almacenAutenticacion.usuarioActual?.id_usuario
-const CLAVE_CENTROS = `playpdf-mis-centros-${idUsuario}`
 
 const misCentros = ref([])
+const estaCargando = ref(true)
 const mostrarModalCodigo = ref(false)
 const codigoIntroducido = ref('')
 const errorCodigo = ref('')
 const buscandoCodigo = ref(false)
 
-onMounted(() => {
-  const guardados = JSON.parse(localStorage.getItem(CLAVE_CENTROS) || '[]')
-  misCentros.value = guardados
+onMounted(async () => {
+  try {
+    const resp = await servicioCentros.obtenerMisCentros()
+    misCentros.value = resp.data
+  } catch {
+    misCentros.value = []
+  } finally {
+    estaCargando.value = false
+  }
 })
 
 async function unirseConCodigo() {
   errorCodigo.value = ''
   const codigo = codigoIntroducido.value.trim().toUpperCase()
   if (!codigo) return
-
   buscandoCodigo.value = true
   try {
-    const respuesta = await servicioCentros.obtenerPorCodigo(codigo)
-    const centro = respuesta.data
+    const resp = await servicioCentros.unirseACentro(codigo)
+    const centro = resp.data
     const yaExiste = misCentros.value.some(c => c.id_centro === centro.id_centro)
-    if (!yaExiste) {
-      misCentros.value.push(centro)
-      localStorage.setItem(CLAVE_CENTROS, JSON.stringify(misCentros.value))
-    }
+    if (!yaExiste) misCentros.value.push(centro)
     mostrarModalCodigo.value = false
     codigoIntroducido.value = ''
-  } catch {
-    errorCodigo.value = 'Código incorrecto. Comprueba que el código sea el correcto.'
+  } catch (error) {
+    errorCodigo.value = error.response?.data?.message || 'Código incorrecto. Comprueba que el código sea el correcto.'
   } finally {
     buscandoCodigo.value = false
   }
 }
 
-function abandonarCentro(idCentro) {
+async function abandonarCentro(idCentro) {
   if (confirm('¿Quieres abandonar este centro? No se eliminan tus asignaturas.')) {
-    misCentros.value = misCentros.value.filter(c => c.id_centro !== idCentro)
-    localStorage.setItem(CLAVE_CENTROS, JSON.stringify(misCentros.value))
+    try {
+      await servicioCentros.abandonarCentro(idCentro)
+      misCentros.value = misCentros.value.filter(c => c.id_centro !== idCentro)
+    } catch {
+      alert('Error al abandonar el centro')
+    }
   }
 }
 </script>
@@ -62,7 +64,11 @@ function abandonarCentro(idCentro) {
       <button class="btn btn-primary" @click="mostrarModalCodigo = true">🔑 Unirse con código</button>
     </div>
 
-    <div v-if="misCentros.length === 0" class="estado-vacio">
+    <div v-if="estaCargando" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+    <div v-else-if="misCentros.length === 0" class="estado-vacio">
       <div class="estado-vacio-icono">🏫</div>
       <p class="estado-vacio-titulo">Aún no perteneces a ningún centro</p>
       <p class="estado-vacio-texto">Introduce el código de acceso que te ha dado el administrador de tu centro</p>

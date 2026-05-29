@@ -76,7 +76,6 @@ async function eliminarAsignatura(identificador) {
       <div class="d-flex gap-2 align-items-center">
         <div class="barra-busqueda"><span class="icono-busqueda">🔍</span><input v-model="terminoBusqueda" type="text"
             class="form-control campo-busqueda" placeholder="Buscar..." /></div>
-        <button class="btn btn-primary" @click="abrirModalCreacion">+ Nueva asignatura</button>
       </div>
     </div>
     <div class="table-responsive border rounded-3 animacion-aparecer-desde-abajo">

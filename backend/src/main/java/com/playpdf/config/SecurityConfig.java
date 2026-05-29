@@ -41,6 +41,9 @@ public class SecurityConfig {
 
 						.requestMatchers("/api/auth/**").permitAll()
 
+						.requestMatchers(HttpMethod.GET, "/api/centros/mis-centros").authenticated()
+						.requestMatchers(HttpMethod.POST, "/api/centros/unirse").authenticated()
+						.requestMatchers(HttpMethod.DELETE, "/api/centros/abandonar/**").authenticated()
 						.requestMatchers(HttpMethod.GET, "/api/centros/**").authenticated()
 						.requestMatchers(HttpMethod.POST, "/api/centros/**").hasRole("ADMIN")
 						.requestMatchers(HttpMethod.DELETE, "/api/centros/**").hasRole("ADMIN")

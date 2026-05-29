@@ -53,7 +53,7 @@ async function agregarCentro() {
 }
 
 async function eliminarCentro(identificador) {
-  if (confirm('¿Eliminar este centro?')) {
+  if (confirm('¿Eliminar este centro? Se eliminarán también sus asignaturas asociadas.')) {
     try {
       await servicioCentros.eliminar(identificador)
       listaCentros.value = listaCentros.value.filter(c => c.id_centro !== identificador)

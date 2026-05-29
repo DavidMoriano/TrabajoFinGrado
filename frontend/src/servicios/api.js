@@ -61,6 +61,15 @@ export const servicioCentros = {
   obtenerPorCodigo(codigo) {
     return clienteHttp.get(`/centros/codigo/${codigo}`);
   },
+  obtenerMisCentros() {
+    return clienteHttp.get("/centros/mis-centros");
+  },
+  unirseACentro(codigoAcceso) {
+    return clienteHttp.post("/centros/unirse", { codigo_acceso: codigoAcceso });
+  },
+  abandonarCentro(idCentro) {
+    return clienteHttp.delete(`/centros/abandonar/${idCentro}`);
+  },
   crear(datosCentro) {
     return clienteHttp.post("/centros", datosCentro);
   },
